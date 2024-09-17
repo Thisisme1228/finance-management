@@ -75,7 +75,7 @@ export async function signup(credentials: SignUpValues): Promise<ActionResult> {
     );
     return redirect("/");
   } catch (error) {
-    // if (isRedirectError(error)) throw error;
+    if (isRedirectError(error)) throw error;
     return {
       error: "Something went wrong. Please try again.",
     };
