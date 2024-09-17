@@ -14,7 +14,23 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  name  String
+  id       String    @id
+  username  String @unique
+  displayName String
   email String  @unique
+  passwordHash	 String
+  sessions Session[]
+  createdAt DateTime @default(now())
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id
+  userId    String
+  expiresAt DateTime
+
+  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+
+  @@map("sessions")
 }

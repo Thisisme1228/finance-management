@@ -15,7 +15,7 @@ import { signUpSchema, SignUpValues } from "@/lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-// import { signup } from "./actions";
+import { signup } from "./actions";
 
 export default function SignUpForm() {
   const [error, setError] = useState<string>();
@@ -34,8 +34,8 @@ export default function SignUpForm() {
   async function onSubmit(values: SignUpValues) {
     setError(undefined);
     startTransition(async () => {
-      //   const { error } = await signup(values);
-      //   if (error) setError(error);
+      const { error } = await signup(values);
+      if (error) setError(error);
     });
   }
 
