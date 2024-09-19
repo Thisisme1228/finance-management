@@ -8,12 +8,6 @@ export default function Home() {
           This platform is designed to help you manage your finances. You can
           use it to track your expenses, set budgets, and more.
         </p>
-        <Link
-          href="/login"
-          className="block text-3xl text-center hover:underline text-green-500"
-        >
-          login
-        </Link>
       </div>
     </main>
   );

@@ -5,7 +5,7 @@ import { PasswordInput } from "@/components/PasswordInput";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { loginSchema, LoginValues } from "@/lib/validation";
-// import { login } from "./actions";
+import { login } from "./actions";
 import {
   Form,
   FormControl,
@@ -28,8 +28,8 @@ export default function LoginForm() {
     // ✅ This will be type-safe and validated.
     console.log(values);
     startTransition(async () => {
-      //   const { error } = await login(values);
-      //   if (error) setError(error);
+      const { error } = await login(values);
+      if (error) setError(error);
     });
   }
 
