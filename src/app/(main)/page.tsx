@@ -1,14 +1,15 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useNewAccount } from "@/components/accounts/hooks/use-new-accounts";
+import { useDispatch } from "react-redux";
+import { open } from "@/components/accounts/newAccountSlice";
 
 export default function Home() {
-  const { onOpen } = useNewAccount();
+  const dispatch = useDispatch();
 
   return (
     <div>
-      <Button onClick={onOpen}>Add an account</Button>
+      <Button onClick={() => dispatch(open())}>Open Account</Button>
     </div>
   );
 }

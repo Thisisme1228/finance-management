@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Roboto } from "next/font/google";
-import { ThemeProvider } from "@/components/theme-provider";
 import ReactQueryProvider from "./ReactQueryProvider";
+import SheetProviderWrapper from "@/components/accounts/sheet-provider";
 
 const roboto = Roboto({
   weight: "400",
@@ -26,14 +26,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${roboto.className}`}>
         <ReactQueryProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            {children}
-          </ThemeProvider>
+          <SheetProviderWrapper>{children}</SheetProviderWrapper>
         </ReactQueryProvider>
       </body>
     </html>

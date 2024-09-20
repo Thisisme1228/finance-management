@@ -5,13 +5,16 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { useNewAccount } from "./hooks/use-new-accounts";
+import { useDispatch, useSelector } from "react-redux";
+import { close } from "./newAccountSlice";
+import { RootState } from "./store";
 
 const NewAccountSheet = () => {
-  const { isOpen, onClose } = useNewAccount();
+  const dispatch = useDispatch();
+  const isOpen = useSelector((state: RootState) => state.newAccount.isOpen);
 
   return (
-    <Sheet open={isOpen} onOpenChange={onClose}>
+    <Sheet open={isOpen} onOpenChange={() => dispatch(close())}>
       <SheetContent className="space-y-4">
         <SheetHeader>
           <SheetTitle>New Account</SheetTitle>
