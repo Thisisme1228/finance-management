@@ -1,14 +1,14 @@
-import Link from "next/link";
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { useNewAccount } from "@/components/accounts/hooks/use-new-accounts";
 
 export default function Home() {
+  const { onOpen } = useNewAccount();
+
   return (
-    <main className="flex w-full min-w-0 gap-5">
-      <div className="w-full min-w-0 space-y-5">
-        <p className="text-lg">
-          This platform is designed to help you manage your finances. You can
-          use it to track your expenses, set budgets, and more.
-        </p>
-      </div>
-    </main>
+    <div>
+      <Button onClick={onOpen}>Add an account</Button>
+    </div>
   );
 }

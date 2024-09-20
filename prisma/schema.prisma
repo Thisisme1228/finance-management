@@ -18,8 +18,10 @@ model User {
   username  String @unique
   displayName String
   email String  @unique
+  paymentId String @unique
   passwordHash	 String
   sessions Session[]
+  sheets Sheets[]
   createdAt DateTime @default(now())
 
   @@map("users")
@@ -33,4 +35,15 @@ model Session {
   user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
 
   @@map("sessions")
+}
+
+model Sheets{
+  id      String @id @default(cuid())
+  content String
+  userId  String
+
+  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  @@map("sheets")
 }
