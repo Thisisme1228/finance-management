@@ -1,5 +1,6 @@
 "use client";
 
+import React, { ReactNode } from 'react';
 import NewAccountSheet from "./newAccountSheet";
 import { useMountedState } from "react-use";
 import { Provider } from "react-redux";
@@ -17,7 +18,11 @@ const SheetProvider = () => {
   );
 };
 
-const SheetProviderWrapper = ({ children }: { children: React.ReactNode }) => {
+interface Props {
+  children: ReactNode;
+}
+
+const SheetProviderWrapper: React.FC<Props> = ({ children }) => {
   return (
     <Provider store={store}>
       <SheetProvider />

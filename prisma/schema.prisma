@@ -18,7 +18,6 @@ model User {
   username  String @unique
   displayName String
   email String  @unique
-  paymentId String @unique
   passwordHash	 String
   sessions Session[]
   sheets Sheets[]
