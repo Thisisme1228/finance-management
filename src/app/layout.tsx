@@ -3,6 +3,7 @@ import "./globals.css";
 import { Roboto } from "next/font/google";
 import ReactQueryProvider from "./ReactQueryProvider";
 import SheetProviderWrapper from "@/components/accounts/sheet-provider";
+import { Toaster } from "@/components/ui/toaster";
 
 const roboto = Roboto({
   weight: "400",
@@ -28,6 +29,7 @@ export default function RootLayout({
         <ReactQueryProvider>
           <SheetProviderWrapper>{children}</SheetProviderWrapper>
         </ReactQueryProvider>
+        <Toaster />
       </body>
     </html>
   );

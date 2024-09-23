@@ -20,7 +20,8 @@ model User {
   email String  @unique
   passwordHash	 String
   sessions Session[]
-  sheets Sheets[]
+  accounts Account[]
+  transactions Transaction[]
   createdAt DateTime @default(now())
 
   @@map("users")
@@ -36,13 +37,24 @@ model Session {
   @@map("sessions")
 }
 
-model Sheets{
+model Account{
   id      String @id @default(cuid())
-  content String
   userId  String
+  name    String @unique
 
   user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
   
   createdAt DateTime @default(now())
-  @@map("sheets")
+  @@map("accounts")
+}
+
+model Transaction{
+  id      String @id @default(cuid())
+  userId  String
+  name    String @unique
+
+  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  @@map("transactions")
 }

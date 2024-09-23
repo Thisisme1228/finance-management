@@ -19,3 +19,15 @@ export const loginSchema = z.object({
 });
 
 export type LoginValues = z.infer<typeof loginSchema>;
+
+export const AccountSchema = z.object({
+  name: requiredString,
+});
+
+export type AccountValues = z.infer<typeof AccountSchema>;
+
+export const TransactionsSchema = z.object({
+  name: requiredString,
+});
+
+export type TransactionsValues = z.infer<typeof TransactionsSchema>;

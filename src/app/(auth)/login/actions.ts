@@ -1,6 +1,6 @@
 "use server";
 
-import { verify } from "@node-rs/argon2";
+import { verify } from "argon2";
 import { cookies } from "next/headers";
 import { lucia } from "@/auth";
 import { redirect } from "next/navigation";
@@ -31,12 +31,7 @@ export async function login(credentials: LoginValues): Promise<ActionResult> {
       };
     }
 
-    const validPassword = await verify(existingUser.passwordHash, password, {
-      memoryCost: 19456,
-      timeCost: 2,
-      outputLen: 32,
-      parallelism: 1,
-    });
+    const validPassword = await verify(existingUser.passwordHash, password);
 
     if (!validPassword) {
       return {

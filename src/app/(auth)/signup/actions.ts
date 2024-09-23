@@ -2,7 +2,7 @@
 import { signUpSchema, SignUpValues } from "@/lib/validation";
 import { isRedirectError } from "next/dist/client/components/redirect";
 import prisma from "@/lib/prisma";
-import { hash } from "@node-rs/argon2";
+import { hash } from "argon2";
 import { cookies } from "next/headers";
 import { lucia } from "@/auth";
 import { redirect } from "next/navigation";
@@ -15,12 +15,7 @@ interface ActionResult {
 export async function signup(credentials: SignUpValues): Promise<ActionResult> {
   try {
     const { email, username, password } = signUpSchema.parse(credentials);
-    const passwordHash = await hash(password, {
-      memoryCost: 19456,
-      timeCost: 2,
-      outputLen: 32,
-      parallelism: 1,
-    });
+    const passwordHash = await hash(password);
     const userId = generateIdFromEntropySize(10); // 16 characters long
 
     // TODO: check if username is already used
