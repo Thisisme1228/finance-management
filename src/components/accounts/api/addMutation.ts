@@ -1,5 +1,5 @@
 import { AccountInfo } from "@/lib/types";
-import { QueryKey, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/hooks/use-toast";
 import kyInstance from "@/lib/ky";
 
@@ -14,7 +14,7 @@ const submitAccountRequest = async ({
   data?: AccountInfo | null;
 }> =>
   kyInstance
-    .post(`/api/accounts/submit-account`, {
+    .post(`/api/accounts/table-data`, {
       json: { name },
     })
     .json<{ message?: string; error?: string }>();
@@ -44,7 +44,7 @@ export function useSubmitAccountMutation() {
       console.error(error);
       toast({
         variant: "destructive",
-        description: "Failed to submit account name. Please try again.",
+        description: "Failed to submit account. Please try again.",
       });
     },
   });

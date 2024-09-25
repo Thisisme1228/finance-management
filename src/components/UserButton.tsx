@@ -1,6 +1,7 @@
 "use client";
 
 import { logout } from "@/app/(auth)/actions";
+import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { Check, LogOutIcon, Monitor, Moon, Sun, UserIcon } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -27,7 +28,7 @@ interface UserButtonProps {
 export default function UserButton({ className }: UserButtonProps) {
   const { user } = useSession();
   const { theme, setTheme } = useTheme();
-
+  const queryClient = useQueryClient();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -48,6 +49,7 @@ export default function UserButton({ className }: UserButtonProps) {
         <DropdownMenuItem
           onClick={() => {
             //The clear method clears all connected caches.
+            queryClient.clear();
             logout();
           }}
         >

@@ -1,5 +1,5 @@
 import { Navigation } from "@/components/navigation";
-import SearchField from "@/components/SearchField";
+// import SearchField from "@/components/SearchField";
 import UserButton from "@/components/UserButton";
 import Link from "next/link";
 
@@ -14,7 +14,7 @@ export default function Navbar() {
           <Navigation />
         </div>
         <div className="flex items-center lg:gap-x-16">
-          <SearchField />
+          {/* <SearchField /> */}
           <UserButton className="sm:ms-auto  pl-4" />
         </div>
       </div>

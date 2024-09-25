@@ -1,15 +1,14 @@
 "use client";
 
-import React, { ReactNode } from 'react';
-import NewAccountSheet from "./newAccountSheet";
+import React, { ReactNode } from "react";
+import AccountSheet from "./accountSheet";
 import { Provider } from "react-redux";
-import store from "@/components/accounts/store";
+import store from "@/app/store";
 
 const SheetProvider = () => {
-
   return (
     <>
-      <NewAccountSheet />
+      <AccountSheet />
     </>
   );
 };

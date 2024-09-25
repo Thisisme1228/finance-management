@@ -10,6 +10,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { useState } from "react";
 import { AccountValues, AccountSchema } from "@/lib/validation";
@@ -17,10 +18,11 @@ import { AccountValues, AccountSchema } from "@/lib/validation";
 type Props = {
   id?: string;
   defaultValues?: AccountValues;
-  onSubmit: (values: AccountValues) => void;
+  onSubmit: (values: AccountValues, id?: string) => void;
   onDelete?: () => void;
   disabled?: boolean;
   isPending?: boolean;
+  buttonText?: string;
 };
 
 export const AccountForm = ({
@@ -30,6 +32,7 @@ export const AccountForm = ({
   onDelete,
   disabled,
   isPending,
+  buttonText,
 }: Props) => {
   const [error, setError] = useState<string>();
 
@@ -41,7 +44,7 @@ export const AccountForm = ({
 
   // 2. Define a submit handler.
   const handleSubmit = (values: AccountValues) => {
-    onSubmit(values);
+    onSubmit(values, id);
   };
 
   const handleDelete = () => {
@@ -68,31 +71,13 @@ export const AccountForm = ({
                   {...field}
                 />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
         <Button className="w-full" disabled={disabled}>
-          {id ? (
-            "Save Changes"
-          ) : !isPending ? (
-            "Create Account"
-          ) : (
-            <Loader2 className="animate-spin" />
-          )}
+          {!isPending ? buttonText : <Loader2 className="animate-spin" />}
         </Button>
-
-        {!!id && (
-          <Button
-            type="button"
-            disabled={disabled}
-            onClick={handleDelete}
-            className="w-full"
-            variant="outline"
-          >
-            <Trash className="size-4 mr-2" />
-            Delete account
-          </Button>
-        )}
       </form>
     </Form>
   );

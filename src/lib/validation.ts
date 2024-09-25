@@ -21,7 +21,7 @@ export const loginSchema = z.object({
 export type LoginValues = z.infer<typeof loginSchema>;
 
 export const AccountSchema = z.object({
-  name: requiredString,
+  name: requiredString.max(20, "Must be 20 characters or less"),
 });
 
 export type AccountValues = z.infer<typeof AccountSchema>;

@@ -1,23 +1,23 @@
 import { Prisma } from "@prisma/client";
 
-export function getAccountDataSelect() {
+export function getUserDataSelect() {
   return {
     id: true,
-    userId: true,
-    name: true,
-    user: true,
+    username: true,
+    displayName: true,
     createdAt: true,
     //https://www.prisma.io/blog/satisfies-operator-ur8ys8ccq7zb
-  } satisfies Prisma.AccountSelect; //Infer the output type of methods like findMany and create
+  } satisfies Prisma.UserSelect; //Infer the output type of methods like findMany and create
 }
 
 export type AccountsData = Prisma.AccountGetPayload<{
-  select: ReturnType<typeof getAccountDataSelect>;
+  include: ReturnType<typeof getAccountDataInclude>;
 }>;
 
 export interface AccountsPage {
-  Accounts: AccountsData[];
+  data: AccountsData[];
   nextCursor: string | null;
+  totalPages: number;
 }
 
 export interface AccountInfo {
@@ -25,4 +25,20 @@ export interface AccountInfo {
   userId?: string;
   name: string;
   createdAt?: Date;
+}
+
+export interface AccountData {
+  title: string;
+  subtitle: string;
+  buttonText: string;
+  id?: string;
+  name?: string;
+}
+
+export function getAccountDataInclude() {
+  return {
+    user: {
+      select: getUserDataSelect(),
+    },
+  } satisfies Prisma.AccountInclude;
 }
