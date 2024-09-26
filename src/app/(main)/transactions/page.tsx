@@ -5,12 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { cancel } from "@/store/accountPaginationSlice";
-import { open } from "@/store/accountSlice";
+import { cancel } from "@/store/transactionPaginationSlice";
+import { open } from "@/store/transactionSlice";
 import { DataTable } from "@/components/ui/datatable";
-import { AccountInfo } from "@/lib/types";
+import { TransactionInfo } from "@/lib/types";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { useDeleteAccountMutation } from "@/app/(main)/accounts/mutations/delete";
+import { useDeleteTransactionMutation } from "@/app/(main)/transactions/mutations/delete";
 import { ColumnDef, PaginationState } from "@tanstack/react-table";
 import { UseConfirm } from "@/components/hooks/use-confirm";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -19,9 +19,9 @@ import { formatRelativeDate } from "@/lib/utils";
 import { useState, useMemo } from "react";
 import { fetchData } from "./mutations/fetch";
 
-const AccountsTablePage = () => {
+const TransactionsTablePage = () => {
   const { isFirstPage } = useSelector(
-    (state: RootState) => state.accountPaginationModal
+    (state: RootState) => state.transactionPaginationModal
   );
 
   const dispatch = useDispatch();
@@ -38,10 +38,10 @@ const AccountsTablePage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFirstPage]);
 
-  const deleteAccounts = useDeleteAccountMutation();
-  const isDisabled = deleteAccounts.isPending;
+  const deleteTransactions = useDeleteTransactionMutation();
+  const isDisabled = deleteTransactions.isPending;
   const { data, status, isFetching } = useQuery({
-    queryKey: ["account", pagination],
+    queryKey: ["transaction", pagination],
     queryFn: () => fetchData(pagination),
     placeholderData: keepPreviousData,
   });
@@ -52,12 +52,12 @@ const AccountsTablePage = () => {
   if (status === "error") {
     return (
       <p className="text-center text-destructive">
-        An error occurred while loading accounts.
+        An error occurred while loading transactions.
       </p>
     );
   }
 
-  const columns: ColumnDef<AccountInfo>[] = [
+  const columns: ColumnDef<TransactionInfo>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -109,7 +109,7 @@ const AccountsTablePage = () => {
       accessorKey: "actions",
       header: () => <div className="text-right"></div>,
       cell: ({ row }) => {
-        const account = row.original;
+        const transaction = row.original;
         return (
           <div className="text-right">
             <Button
@@ -119,11 +119,11 @@ const AccountsTablePage = () => {
               onClick={() =>
                 dispatch(
                   open({
-                    title: "Edit account",
-                    subtitle: "Edit a account to track your transactions.",
+                    title: "Edit transaction",
+                    subtitle: "Edit a transaction to track your transactions.",
                     buttonText: "Save Changes",
-                    id: account.id,
-                    name: account.name,
+                    id: transaction.id,
+                    name: transaction.name,
                   })
                 )
               }
@@ -135,8 +135,8 @@ const AccountsTablePage = () => {
               content="Are you sure you want to delete this row?"
               isDisabled={isDisabled}
               confirm={async () => {
-                const id = account.id;
-                deleteAccounts.mutate({ id });
+                const id = transaction.id;
+                deleteTransactions.mutate({ id });
               }}
             >
               <Button size="sm" variant="outline" className="mr-4">
@@ -153,14 +153,17 @@ const AccountsTablePage = () => {
     <div className="max-x-screen-2xl mx-auto w-full pb-10 -mt-24 z-10">
       <Card className="border-none drop-shadow-sm">
         <CardHeader className="gap-y-2 lg:flex-row lg:items-center lg:justify-between">
-          <CardTitle className="text-xl line-clamp-1">Account page</CardTitle>
+          <CardTitle className="text-xl line-clamp-1">
+            Transaction page
+          </CardTitle>
           <Button
             onClick={() =>
               dispatch(
                 open({
-                  title: "New account",
-                  subtitle: "Create a new account to track your transactions.",
-                  buttonText: "Create account",
+                  title: "New transaction",
+                  subtitle:
+                    "Create a new transaction to track your transactions.",
+                  buttonText: "Create transaction",
                 })
               )
             }
@@ -179,7 +182,7 @@ const AccountsTablePage = () => {
           {status === "success" && !tableData.length && (
             <div className="h-[500px] w-full flex items-center justify-center">
               <p className="text-center text-muted-foreground">
-                No Accounts found. Create account here.
+                No transactions found. Create transaction here.
               </p>
             </div>
           )}
@@ -197,7 +200,7 @@ const AccountsTablePage = () => {
               isFetching={isFetching}
               onDelete={(row) => {
                 const ids = row.map((r) => r.id);
-                deleteAccounts.mutate({ ids });
+                deleteTransactions.mutate({ ids });
               }}
             />
           ) : null}
@@ -207,4 +210,4 @@ const AccountsTablePage = () => {
   );
 };
 
-export default AccountsTablePage;
+export default TransactionsTablePage;

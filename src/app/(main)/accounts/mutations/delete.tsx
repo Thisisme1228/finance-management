@@ -1,27 +1,30 @@
 import { AccountInfo } from "@/lib/types";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { QueryKey, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/hooks/use-toast";
 import kyInstance from "@/lib/ky";
 
-const editAccountRequest = async (
-  data: AccountInfo
+const deleteAccountRequest = async (
+  data: { id: string } | { ids: string[] }
 ): Promise<{
   status?: string;
   message?: string;
   error?: string;
-}> =>
-  kyInstance
-    .patch(`/api/accounts/table-data`, {
-      json: data,
+  data?: AccountInfo | null;
+}> => {
+  const IdObj = Object.entries(data)[0];
+  return kyInstance
+    .delete(`/api/accounts/table-data`, {
+      json: { [IdObj[0]]: IdObj[1] },
     })
     .json<{ message?: string; error?: string }>();
+};
 
-export function useEditAccountMutation() {
+export function useDeleteAccountMutation() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: editAccountRequest,
+    mutationFn: deleteAccountRequest,
     onSuccess: async (res: {
       status?: string;
       message?: string;
@@ -33,14 +36,20 @@ export function useEditAccountMutation() {
         description: res.message || res.error,
       });
 
-      if (res.status === "200")
-        queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      if (res.status === "200") {
+        const queries = queryClient.getQueryCache().getAll();
+        queries.forEach((query) => {
+          if (query.queryKey[0] === "account") {
+            queryClient.invalidateQueries({ queryKey: query.queryKey });
+          }
+        });
+      }
     },
     onError(error: Error) {
       console.error(error);
       toast({
         variant: "destructive",
-        description: "Failed to edit account. Please try again.",
+        description: "Failed to delete account. Please try again.",
       });
     },
   });

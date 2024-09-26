@@ -10,9 +10,9 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  PaginationState,
 } from "@tanstack/react-table";
 import { AccountInfo } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -31,18 +31,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import { UseConfirm } from "@/components/hooks/use-confirm";
-import { Trash } from "lucide-react";
 
+import { UseConfirm } from "@/components/hooks/use-confirm";
+import { Trash, Loader2 } from "lucide-react";
 export function DataTable({
   data,
   columns,
@@ -51,11 +42,10 @@ export function DataTable({
   onDelete,
   confirmTitle,
   confirmContent,
-  ispending,
-  hasNextPage,
-  hasPreviousPage,
-  fetchNextPage,
   tablePages,
+  pagination,
+  isFetching,
+  setPagination,
 }: {
   data: AccountInfo[];
   columns: ColumnDef<AccountInfo>[];
@@ -64,11 +54,10 @@ export function DataTable({
   onDelete: (rows: AccountInfo[]) => void;
   confirmTitle: string;
   confirmContent: string;
-  ispending: boolean;
-  hasPreviousPage: boolean;
-  hasNextPage: boolean;
   tablePages: number;
-  fetchNextPage: () => void;
+  isFetching: boolean;
+  pagination: PaginationState;
+  setPagination: any;
 }) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -84,17 +73,22 @@ export function DataTable({
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    manualPagination: true,
+    pageCount: tablePages,
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    onPaginationChange: setPagination,
+    autoResetPageIndex: false,
     state: {
+      pagination,
       sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
     },
+    debugTable: true,
   });
 
   return (
@@ -161,7 +155,12 @@ export function DataTable({
           </DropdownMenu>
         </div>
       </div>
-      <div className="rounded-md border">
+      <div className="rounded-md border w-full position-relative">
+        {isFetching && (
+          <div className="absolute left-1/2 top-1/2 -ml-6 -mt-6 text-center">
+            <Loader2 className="size-12 text-slate-300 animate-spin" />
+          </div>
+        )}
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -216,14 +215,23 @@ export function DataTable({
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
           {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
-        {/* <div className="space-x-2">
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.firstPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            {"<<"}
+          </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            Previous
+            {"<"}
           </Button>
           <Button
             variant="outline"
@@ -231,58 +239,54 @@ export function DataTable({
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            Next
+            {">"}
           </Button>
-        </div> */}
-        <div className="space-x-2">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  isActive={hasPreviousPage && !ispending}
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (hasPreviousPage && !ispending) {
-                      return fetchNextPage();
-                    }
-                  }}
-                />
-              </PaginationItem>
-              {tablePages > 1 ? (
-                <>
-                  {Array.from({ length: tablePages }).map((_, index) => {
-                    return (
-                      <PaginationItem key={index}>
-                        <PaginationLink
-                          // isActive={index === table.getPageIndex()}
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            table.setPageIndex(index);
-                          }}
-                        >
-                          {index + 1}
-                        </PaginationLink>
-                      </PaginationItem>
-                    );
-                  })}
-                </>
-              ) : null}
-              <PaginationItem>
-                <PaginationNext
-                  isActive={hasNextPage && !ispending}
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (hasNextPage && !ispending) {
-                      return fetchNextPage();
-                    }
-                  }}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.lastPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            {">>"}
+          </Button>
+          <span className="flex items-center gap-1">
+            <div>Page</div>
+            <strong>
+              {table.getState().pagination.pageIndex + 1} of{" "}
+              {table.getPageCount().toLocaleString()}
+            </strong>
+          </span>
+          <span className="flex items-center gap-1">
+            | Go to page:
+            <input
+              type="number"
+              min="1"
+              max={table.getPageCount()}
+              defaultValue={table.getState().pagination.pageIndex + 1}
+              onChange={(e) => {
+                const page = e.target.value ? Number(e.target.value) - 1 : 0;
+                table.setPageIndex(page);
+              }}
+              className="border p-1 rounded w-16 h-8 outline-none"
+            />
+          </span>
+          <select
+            className="border p-1 rounded outline-none h-8"
+            value={table.getState().pagination.pageSize}
+            onChange={(e) => {
+              table.setPageSize(Number(e.target.value));
+            }}
+          >
+            {[10, 20, 30, 40, 50].map((pageSize) => (
+              <option
+                key={pageSize}
+                value={pageSize}
+                className="outline-none border-none"
+              >
+                Show {pageSize}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
     </div>

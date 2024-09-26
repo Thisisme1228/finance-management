@@ -16,8 +16,7 @@ export type AccountsData = Prisma.AccountGetPayload<{
 
 export interface AccountsPage {
   data: AccountsData[];
-  nextCursor: string | null;
-  totalPages: number;
+  totalCount: number;
 }
 
 export interface AccountInfo {
@@ -41,4 +40,36 @@ export function getAccountDataInclude() {
       select: getUserDataSelect(),
     },
   } satisfies Prisma.AccountInclude;
+}
+
+export type TransactionsData = Prisma.TransactionGetPayload<{
+  include: ReturnType<typeof getTransactionsDataInclude>;
+}>;
+
+export interface TransactionsPage {
+  data: TransactionsData[];
+  totalCount: number;
+}
+
+export interface TransactionInfo {
+  id: string;
+  userId?: string;
+  name: string;
+  createdAt?: Date;
+}
+
+export interface TransactionData {
+  title: string;
+  subtitle: string;
+  buttonText: string;
+  id?: string;
+  name?: string;
+}
+
+export function getTransactionsDataInclude() {
+  return {
+    user: {
+      select: getUserDataSelect(),
+    },
+  } satisfies Prisma.TransactionInclude;
 }

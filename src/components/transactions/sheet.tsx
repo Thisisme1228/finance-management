@@ -6,22 +6,23 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useDispatch, useSelector } from "react-redux";
-import { close } from "../../app/store/accountSlice";
-import { RootState } from "../../app/store";
-import { AccountForm } from "./account-form";
-import { AccountValues } from "@/lib/validation";
-import { useSubmitAccountMutation } from "./api/addMutation";
-import { useEditAccountMutation } from "./api/editMutation";
+import { close } from "@/store/transactionSlice";
+import { returnFirstPage } from "@/store/transactionPaginationSlice";
+import { RootState } from "@/store";
+import { TransactionForm } from "./form";
+import { TransactionsValues } from "@/lib/validation";
+import { useSubmitTransactionMutation } from "@/app/(main)/transactions/mutations/add";
+import { useEditTransactionMutation } from "@/app/(main)/transactions/mutations/edit";
 
-const AccountSheet = () => {
+const TransactionSheet = () => {
   const dispatch = useDispatch();
-  const addMutation = useSubmitAccountMutation();
-  const editMutation = useEditAccountMutation();
+  const addMutation = useSubmitTransactionMutation();
+  const editMutation = useEditTransactionMutation();
 
   const { isOpen, data } = useSelector(
-    (state: RootState) => state.accountModal
+    (state: RootState) => state.transactionModal
   );
-  const onSubmit = (name: AccountValues, id?: string) => {
+  const onSubmit = (name: TransactionsValues, id?: string) => {
     if (id) {
       editMutation.mutate(
         { name: name.name, id },
@@ -34,6 +35,9 @@ const AccountSheet = () => {
     } else {
       addMutation.mutate(name, {
         onSuccess: (res) => {
+          if (res.status === "201") {
+            dispatch(returnFirstPage());
+          }
           if (!res.error) dispatch(close());
         },
       });
@@ -50,7 +54,7 @@ const AccountSheet = () => {
           <SheetTitle>{data?.title}</SheetTitle>
           <SheetDescription>{data?.subtitle}</SheetDescription>
         </SheetHeader>
-        <AccountForm
+        <TransactionForm
           isPending={addMutation.isPending || editMutation.isPending}
           onSubmit={onSubmit}
           disabled={false}
@@ -65,4 +69,4 @@ const AccountSheet = () => {
   );
 };
 
-export default AccountSheet;
+export default TransactionSheet;

@@ -1,8 +1,8 @@
 import { validateRequest } from "@/auth";
 import prisma from "@/lib/prisma";
-import { getAccountDataInclude, AccountsPage } from "@/lib/types";
+import { getTransactionsDataInclude, TransactionsPage } from "@/lib/types";
 import { NextRequest } from "next/server";
-import { AccountSchema } from "@/lib/validation";
+import { TransactionsSchema } from "@/lib/validation";
 
 export async function GET(req: NextRequest) {
   try {
@@ -16,26 +16,26 @@ export async function GET(req: NextRequest) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Fetch the total count of accounts
-    const totalCount = await prisma.account.count({
+    // Fetch the total count of transaction
+    const totalCount = await prisma.transaction.count({
       where: {
         userId: user.id,
       },
     });
 
-    // Fetch the paginated accounts
-    const accounts = await prisma.account.findMany({
+    // Fetch the paginated transactions
+    const transactions = await prisma.transaction.findMany({
       where: {
         userId: user.id,
       },
-      include: getAccountDataInclude(),
+      include: getTransactionsDataInclude(),
       orderBy: { createdAt: "desc" },
       take: pageSize,
       skip: pageIndex * pageSize,
     });
 
-    const data: AccountsPage = {
-      data: accounts,
+    const data: TransactionsPage = {
+      data: transactions,
       totalCount,
     };
 
@@ -55,10 +55,10 @@ export async function POST(req: Request) {
     }
 
     const { name } = await req.json();
-    const { name: contentValidated } = AccountSchema.parse({ name });
+    const { name: contentValidated } = TransactionsSchema.parse({ name });
 
-    // TODO: check if account is already used
-    const existingAccountname = await prisma.account.findFirst({
+    // TODO: check if transaction is already used
+    const existingTransactionname = await prisma.transaction.findFirst({
       where: {
         userId: loggedInUser.id,
         name: {
@@ -68,11 +68,14 @@ export async function POST(req: Request) {
         },
       },
     });
-    if (existingAccountname) {
-      return Response.json({ error: "Account already taken" }, { status: 200 });
+    if (existingTransactionname) {
+      return Response.json(
+        { error: "Transaction already taken" },
+        { status: 200 }
+      );
     }
 
-    const newAccount = await prisma.account.create({
+    const newTransaction = await prisma.transaction.create({
       data: {
         name: contentValidated,
         userId: loggedInUser.id,
@@ -80,7 +83,7 @@ export async function POST(req: Request) {
     });
 
     return Response.json(
-      { status: "201", message: "Account created", data: newAccount },
+      { status: "201", message: "Transaction created", data: newTransaction },
       { status: 201 }
     );
   } catch (error) {
@@ -100,14 +103,14 @@ export async function DELETE(req: Request) {
     const IdObj = Object.entries(IdRequest)[0];
 
     if (IdObj[0] === "id") {
-      await prisma.account.deleteMany({
+      await prisma.transaction.deleteMany({
         where: {
           userId: loggedInUser.id,
           id: IdRequest.id,
         },
       });
     } else {
-      await prisma.account.deleteMany({
+      await prisma.transaction.deleteMany({
         where: {
           userId: loggedInUser.id,
           id: {
@@ -118,7 +121,7 @@ export async function DELETE(req: Request) {
     }
 
     return Response.json(
-      { status: "200", message: "Account deleted" },
+      { status: "200", message: "Transaction deleted" },
       { status: 200 }
     );
   } catch (error) {
@@ -135,9 +138,9 @@ export async function PATCH(req: Request) {
     }
 
     const { id, name } = await req.json();
-    const { name: contentValidated } = AccountSchema.parse({ name });
+    const { name: contentValidated } = TransactionsSchema.parse({ name });
 
-    const accountExisted = await prisma.account.findFirst({
+    const transactionExisted = await prisma.transaction.findFirst({
       where: {
         userId: loggedInUser.id,
         id: {
@@ -150,16 +153,16 @@ export async function PATCH(req: Request) {
         },
       },
     });
-    if (accountExisted) {
+    if (transactionExisted) {
       return Response.json(
         {
           status: "200",
-          error: "Account already taken",
+          error: "Transaction already taken",
         },
         { status: 200 }
       );
     }
-    const updatedAccount = await prisma.account.update({
+    const updatedTransaction = await prisma.transaction.update({
       where: { id },
       data: {
         name: contentValidated,
@@ -168,8 +171,8 @@ export async function PATCH(req: Request) {
     return Response.json(
       {
         status: "200",
-        message: "Successed to edit account",
-        data: updatedAccount,
+        message: "Successed to edit transaction",
+        data: updatedTransaction,
       },
       { status: 200 }
     );

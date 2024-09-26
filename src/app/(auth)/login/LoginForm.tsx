@@ -26,7 +26,7 @@ export default function LoginForm() {
 
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    console.log(values);
+
     startTransition(async () => {
       const { error } = await login(values);
       if (error) setError(error);

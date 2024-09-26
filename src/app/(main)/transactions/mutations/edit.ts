@@ -1,35 +1,31 @@
-import { AccountInfo } from "@/lib/types";
+import { TransactionInfo } from "@/lib/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/hooks/use-toast";
 import kyInstance from "@/lib/ky";
 
-const submitAccountRequest = async ({
-  name,
-}: {
-  name: string;
-}): Promise<{
+const editTransactionRequest = async (
+  data: TransactionInfo
+): Promise<{
   status?: string;
   message?: string;
   error?: string;
-  data?: AccountInfo | null;
 }> =>
   kyInstance
-    .post(`/api/accounts/table-data`, {
-      json: { name },
+    .patch(`/api/transactions/table-data`, {
+      json: data,
     })
     .json<{ message?: string; error?: string }>();
 
-export function useSubmitAccountMutation() {
+export function useEditTransactionMutation() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: submitAccountRequest,
+    mutationFn: editTransactionRequest,
     onSuccess: async (res: {
       status?: string;
       message?: string;
       error?: string;
-      data?: AccountInfo | null;
     }) => {
       // Update the query data or invalidate queries as needed
       toast({
@@ -37,14 +33,20 @@ export function useSubmitAccountMutation() {
         description: res.message || res.error,
       });
 
-      if (res.status === "201")
-        queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      if (res.status === "200") {
+        const queries = queryClient.getQueryCache().getAll();
+        queries.forEach((query) => {
+          if (query.queryKey[0] === "transaction") {
+            queryClient.invalidateQueries({ queryKey: query.queryKey });
+          }
+        });
+      }
     },
     onError(error: Error) {
       console.error(error);
       toast({
         variant: "destructive",
-        description: "Failed to submit account. Please try again.",
+        description: "Failed to edit transaction. Please try again.",
       });
     },
   });

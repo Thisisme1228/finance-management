@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Roboto } from "next/font/google";
 import ReactQueryProvider from "./ReactQueryProvider";
-import SheetProviderWrapper from "@/components/accounts/sheet-provider";
+import ReduxProviderWrapper from "@/store/provider";
 import { Toaster } from "@/components/ui/toaster";
 
 const roboto = Roboto({
@@ -27,7 +27,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${roboto.className}`}>
         <ReactQueryProvider>
-          <SheetProviderWrapper>{children}</SheetProviderWrapper>
+          <ReduxProviderWrapper>{children}</ReduxProviderWrapper>
         </ReactQueryProvider>
         <Toaster />
       </body>
