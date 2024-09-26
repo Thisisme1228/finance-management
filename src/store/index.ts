@@ -1,15 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
 import accountReducer from "./accountSlice";
 import accountPaginationModal from "./accountPaginationSlice";
-import transactionReducer from "./transactionSlice";
-import transactionPaginationModal from "./transactionPaginationSlice";
+import categoryReducer from "./categorySlice";
+import categoryPaginationModal from "./categoryPaginationSlice";
 
 const store = configureStore({
   reducer: {
     accountModal: accountReducer,
     accountPaginationModal: accountPaginationModal,
-    transactionModal: transactionReducer,
-    transactionPaginationModal: transactionPaginationModal,
+    categoryModal: categoryReducer,
+    categoryPaginationModal: categoryPaginationModal,
   },
 });
 

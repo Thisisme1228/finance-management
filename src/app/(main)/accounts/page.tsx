@@ -120,7 +120,7 @@ const AccountsTablePage = () => {
                 dispatch(
                   open({
                     title: "Edit account",
-                    subtitle: "Edit a account to track your transactions.",
+                    subtitle: "Edit a account to track your categories.",
                     buttonText: "Save Changes",
                     id: account.id,
                     name: account.name,
@@ -159,7 +159,7 @@ const AccountsTablePage = () => {
               dispatch(
                 open({
                   title: "New account",
-                  subtitle: "Create a new account to track your transactions.",
+                  subtitle: "Create a new account to track your categories.",
                   buttonText: "Create account",
                 })
               )

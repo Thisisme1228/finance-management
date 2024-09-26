@@ -14,7 +14,6 @@ import {
   useReactTable,
   PaginationState,
 } from "@tanstack/react-table";
-import { AccountInfo } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -34,7 +33,8 @@ import {
 
 import { UseConfirm } from "@/components/hooks/use-confirm";
 import { Trash, Loader2 } from "lucide-react";
-export function DataTable({
+
+export function DataTable<T>({
   data,
   columns,
   filterKey,
@@ -47,11 +47,11 @@ export function DataTable({
   isFetching,
   setPagination,
 }: {
-  data: AccountInfo[];
-  columns: ColumnDef<AccountInfo>[];
+  data: T[];
+  columns: ColumnDef<T>[];
   filterKey: string;
   disabled?: boolean;
-  onDelete: (rows: AccountInfo[]) => void;
+  onDelete: (rows: T[]) => void;
   confirmTitle: string;
   confirmContent: string;
   tablePages: number;

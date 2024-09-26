@@ -15,7 +15,7 @@ export async function fetchData(options: {
     totalCount?: number;
     nextCursor?: string;
   } = await kyInstance
-    .get("/api/transactions/table-data", {
+    .get("/api/categories/table-data", {
       searchParams: { ...options },
     })
     .json();

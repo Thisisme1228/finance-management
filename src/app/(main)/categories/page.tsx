@@ -5,12 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { cancel } from "@/store/transactionPaginationSlice";
-import { open } from "@/store/transactionSlice";
+import { cancel } from "@/store/categoryPaginationSlice";
+import { open } from "@/store/categorySlice";
 import { DataTable } from "@/components/ui/datatable";
-import { TransactionInfo } from "@/lib/types";
+import { CategoryInfo } from "@/lib/types";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { useDeleteTransactionMutation } from "@/app/(main)/transactions/mutations/delete";
+import { useDeleteCategoryMutation } from "@/app/(main)/categories/mutations/delete";
 import { ColumnDef, PaginationState } from "@tanstack/react-table";
 import { UseConfirm } from "@/components/hooks/use-confirm";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -18,10 +18,10 @@ import { CaretSortIcon } from "@radix-ui/react-icons";
 import { formatRelativeDate } from "@/lib/utils";
 import { useState, useMemo } from "react";
 import { fetchData } from "./mutations/fetch";
-
-const TransactionsTablePage = () => {
+import { AccountInfo } from "@/lib/types";
+const CategoriesTablePage = () => {
   const { isFirstPage } = useSelector(
-    (state: RootState) => state.transactionPaginationModal
+    (state: RootState) => state.categoryPaginationModal
   );
 
   const dispatch = useDispatch();
@@ -38,10 +38,10 @@ const TransactionsTablePage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFirstPage]);
 
-  const deleteTransactions = useDeleteTransactionMutation();
-  const isDisabled = deleteTransactions.isPending;
+  const deleteCategories = useDeleteCategoryMutation();
+  const isDisabled = deleteCategories.isPending;
   const { data, status, isFetching } = useQuery({
-    queryKey: ["transaction", pagination],
+    queryKey: ["category", pagination],
     queryFn: () => fetchData(pagination),
     placeholderData: keepPreviousData,
   });
@@ -52,12 +52,12 @@ const TransactionsTablePage = () => {
   if (status === "error") {
     return (
       <p className="text-center text-destructive">
-        An error occurred while loading transactions.
+        An error occurred while loading categories.
       </p>
     );
   }
 
-  const columns: ColumnDef<TransactionInfo>[] = [
+  const columns: ColumnDef<CategoryInfo>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -109,7 +109,7 @@ const TransactionsTablePage = () => {
       accessorKey: "actions",
       header: () => <div className="text-right"></div>,
       cell: ({ row }) => {
-        const transaction = row.original;
+        const category = row.original;
         return (
           <div className="text-right">
             <Button
@@ -119,11 +119,11 @@ const TransactionsTablePage = () => {
               onClick={() =>
                 dispatch(
                   open({
-                    title: "Edit transaction",
-                    subtitle: "Edit a transaction to track your transactions.",
+                    title: "Edit category",
+                    subtitle: "Edit a category to track your categories.",
                     buttonText: "Save Changes",
-                    id: transaction.id,
-                    name: transaction.name,
+                    id: category.id,
+                    name: category.name,
                   })
                 )
               }
@@ -135,8 +135,8 @@ const TransactionsTablePage = () => {
               content="Are you sure you want to delete this row?"
               isDisabled={isDisabled}
               confirm={async () => {
-                const id = transaction.id;
-                deleteTransactions.mutate({ id });
+                const id = category.id;
+                deleteCategories.mutate({ id });
               }}
             >
               <Button size="sm" variant="outline" className="mr-4">
@@ -153,17 +153,14 @@ const TransactionsTablePage = () => {
     <div className="max-x-screen-2xl mx-auto w-full pb-10 -mt-24 z-10">
       <Card className="border-none drop-shadow-sm">
         <CardHeader className="gap-y-2 lg:flex-row lg:items-center lg:justify-between">
-          <CardTitle className="text-xl line-clamp-1">
-            Transaction page
-          </CardTitle>
+          <CardTitle className="text-xl line-clamp-1">Category page</CardTitle>
           <Button
             onClick={() =>
               dispatch(
                 open({
-                  title: "New transaction",
-                  subtitle:
-                    "Create a new transaction to track your transactions.",
-                  buttonText: "Create transaction",
+                  title: "New category",
+                  subtitle: "Create a new category to track your categories.",
+                  buttonText: "Create category",
                 })
               )
             }
@@ -182,7 +179,7 @@ const TransactionsTablePage = () => {
           {status === "success" && !tableData.length && (
             <div className="h-[500px] w-full flex items-center justify-center">
               <p className="text-center text-muted-foreground">
-                No transactions found. Create transaction here.
+                No categories found. Create category here.
               </p>
             </div>
           )}
@@ -200,7 +197,7 @@ const TransactionsTablePage = () => {
               isFetching={isFetching}
               onDelete={(row) => {
                 const ids = row.map((r) => r.id);
-                deleteTransactions.mutate({ ids });
+                deleteCategories.mutate({ ids });
               }}
             />
           ) : null}
@@ -210,4 +207,4 @@ const TransactionsTablePage = () => {
   );
 };
 
-export default TransactionsTablePage;
+export default CategoriesTablePage;

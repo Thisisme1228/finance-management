@@ -47,9 +47,9 @@ export async function signup(credentials: SignUpValues): Promise<ActionResult> {
         error: "Email already taken",
       };
     }
-    //A database transaction refers to a sequence of read/write operations that are guaranteed to either succeed or fail as a whole.
-    await prisma.$transaction(async (tx) => {
-      // Code running in a transaction...
+    //A database category refers to a sequence of read/write operations that are guaranteed to either succeed or fail as a whole.
+    await prisma.$category(async (tx) => {
+      // Code running in a category...
       await tx.user.create({
         data: {
           id: userId,

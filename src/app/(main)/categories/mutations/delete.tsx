@@ -1,30 +1,30 @@
-import { TransactionInfo } from "@/lib/types";
+import { CategoryInfo } from "@/lib/types";
 import { QueryKey, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/hooks/use-toast";
 import kyInstance from "@/lib/ky";
 
-const deleteTransactionRequest = async (
+const deleteCategoryRequest = async (
   data: { id: string } | { ids: string[] }
 ): Promise<{
   status?: string;
   message?: string;
   error?: string;
-  data?: TransactionInfo | null;
+  data?: CategoryInfo | null;
 }> => {
   const IdObj = Object.entries(data)[0];
   return kyInstance
-    .delete(`/api/transactions/table-data`, {
+    .delete(`/api/categories/table-data`, {
       json: { [IdObj[0]]: IdObj[1] },
     })
     .json<{ message?: string; error?: string }>();
 };
 
-export function useDeleteTransactionMutation() {
+export function useDeleteCategoryMutation() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: deleteTransactionRequest,
+    mutationFn: deleteCategoryRequest,
     onSuccess: async (res: {
       status?: string;
       message?: string;
@@ -39,7 +39,7 @@ export function useDeleteTransactionMutation() {
       if (res.status === "200") {
         const queries = queryClient.getQueryCache().getAll();
         queries.forEach((query) => {
-          if (query.queryKey[0] === "transaction") {
+          if (query.queryKey[0] === "category") {
             queryClient.invalidateQueries({ queryKey: query.queryKey });
           }
         });
@@ -49,7 +49,7 @@ export function useDeleteTransactionMutation() {
       console.error(error);
       toast({
         variant: "destructive",
-        description: "Failed to delete transaction. Please try again.",
+        description: "Failed to delete category. Please try again.",
       });
     },
   });

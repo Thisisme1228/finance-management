@@ -26,8 +26,8 @@ export const AccountSchema = z.object({
 
 export type AccountValues = z.infer<typeof AccountSchema>;
 
-export const TransactionsSchema = z.object({
+export const CategoriesSchema = z.object({
   name: requiredString.max(20, "Must be 20 characters or less"),
 });
 
-export type TransactionsValues = z.infer<typeof TransactionsSchema>;
+export type CategoriesValues = z.infer<typeof CategoriesSchema>;

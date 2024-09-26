@@ -1,11 +1,11 @@
-import { TransactionInfo } from "@/lib/types";
+import { CategoryInfo } from "@/lib/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/hooks/use-toast";
 import kyInstance from "@/lib/ky";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 
-const submitTransactionRequest = async ({
+const submitCategoryRequest = async ({
   name,
 }: {
   name: string;
@@ -13,28 +13,28 @@ const submitTransactionRequest = async ({
   status?: string;
   message?: string;
   error?: string;
-  data?: TransactionInfo | null;
+  data?: CategoryInfo | null;
 }> =>
   kyInstance
-    .post(`/api/transactions/table-data`, {
+    .post(`/api/categories/table-data`, {
       json: { name },
     })
     .json<{ message?: string; error?: string }>();
 
-export function useSubmitTransactionMutation() {
+export function useSubmitCategoryMutation() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { isFirstPage } = useSelector(
-    (state: RootState) => state.transactionPaginationModal
+    (state: RootState) => state.categoryPaginationModal
   );
 
   const mutation = useMutation({
-    mutationFn: submitTransactionRequest,
+    mutationFn: submitCategoryRequest,
     onSuccess: async (res: {
       status?: string;
       message?: string;
       error?: string;
-      data?: TransactionInfo | null;
+      data?: CategoryInfo | null;
     }) => {
       // Update the query data or invalidate queries as needed
       toast({
@@ -45,7 +45,7 @@ export function useSubmitTransactionMutation() {
       if (res.status === "201") {
         const queries = queryClient.getQueryCache().getAll();
         queries.forEach((query) => {
-          if (query.queryKey[0] === "transaction") {
+          if (query.queryKey[0] === "category") {
             queryClient.invalidateQueries({ queryKey: query.queryKey });
           }
         });
@@ -55,7 +55,7 @@ export function useSubmitTransactionMutation() {
       console.error(error);
       toast({
         variant: "destructive",
-        description: "Failed to submit transaction. Please try again.",
+        description: "Failed to submit category. Please try again.",
       });
     },
   });

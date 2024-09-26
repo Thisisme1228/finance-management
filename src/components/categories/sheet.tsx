@@ -6,23 +6,23 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useDispatch, useSelector } from "react-redux";
-import { close } from "@/store/transactionSlice";
-import { returnFirstPage } from "@/store/transactionPaginationSlice";
+import { close } from "@/store/categorySlice";
+import { returnFirstPage } from "@/store/categoryPaginationSlice";
 import { RootState } from "@/store";
-import { TransactionForm } from "./form";
-import { TransactionsValues } from "@/lib/validation";
-import { useSubmitTransactionMutation } from "@/app/(main)/transactions/mutations/add";
-import { useEditTransactionMutation } from "@/app/(main)/transactions/mutations/edit";
+import { CategoryForm } from "./form";
+import { CategoriesValues } from "@/lib/validation";
+import { useSubmitCategoryMutation } from "@/app/(main)/categories/mutations/add";
+import { useEditCategoryMutation } from "@/app/(main)/categories/mutations/edit";
 
-const TransactionSheet = () => {
+const CategorySheet = () => {
   const dispatch = useDispatch();
-  const addMutation = useSubmitTransactionMutation();
-  const editMutation = useEditTransactionMutation();
+  const addMutation = useSubmitCategoryMutation();
+  const editMutation = useEditCategoryMutation();
 
   const { isOpen, data } = useSelector(
-    (state: RootState) => state.transactionModal
+    (state: RootState) => state.categoryModal
   );
-  const onSubmit = (name: TransactionsValues, id?: string) => {
+  const onSubmit = (name: CategoriesValues, id?: string) => {
     if (id) {
       editMutation.mutate(
         { name: name.name, id },
@@ -54,7 +54,7 @@ const TransactionSheet = () => {
           <SheetTitle>{data?.title}</SheetTitle>
           <SheetDescription>{data?.subtitle}</SheetDescription>
         </SheetHeader>
-        <TransactionForm
+        <CategoryForm
           isPending={addMutation.isPending || editMutation.isPending}
           onSubmit={onSubmit}
           disabled={false}
@@ -69,4 +69,4 @@ const TransactionSheet = () => {
   );
 };
 
-export default TransactionSheet;
+export default CategorySheet;

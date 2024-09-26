@@ -1,8 +1,8 @@
 import { validateRequest } from "@/auth";
 import prisma from "@/lib/prisma";
-import { getTransactionsDataInclude, TransactionsPage } from "@/lib/types";
+import { getCategoriesDataInclude, CategoriesPage } from "@/lib/types";
 import { NextRequest } from "next/server";
-import { TransactionsSchema } from "@/lib/validation";
+import { CategoriesSchema } from "@/lib/validation";
 
 export async function GET(req: NextRequest) {
   try {
@@ -16,26 +16,26 @@ export async function GET(req: NextRequest) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Fetch the total count of transaction
-    const totalCount = await prisma.transaction.count({
+    // Fetch the total count of category
+    const totalCount = await prisma.category.count({
       where: {
         userId: user.id,
       },
     });
 
-    // Fetch the paginated transactions
-    const transactions = await prisma.transaction.findMany({
+    // Fetch the paginated categories
+    const categories = await prisma.category.findMany({
       where: {
         userId: user.id,
       },
-      include: getTransactionsDataInclude(),
+      include: getCategoriesDataInclude(),
       orderBy: { createdAt: "desc" },
       take: pageSize,
       skip: pageIndex * pageSize,
     });
 
-    const data: TransactionsPage = {
-      data: transactions,
+    const data: CategoriesPage = {
+      data: categories,
       totalCount,
     };
 
@@ -55,10 +55,10 @@ export async function POST(req: Request) {
     }
 
     const { name } = await req.json();
-    const { name: contentValidated } = TransactionsSchema.parse({ name });
+    const { name: contentValidated } = CategoriesSchema.parse({ name });
 
-    // TODO: check if transaction is already used
-    const existingTransactionname = await prisma.transaction.findFirst({
+    // TODO: check if category is already used
+    const existingCategoryname = await prisma.category.findFirst({
       where: {
         userId: loggedInUser.id,
         name: {
@@ -68,14 +68,14 @@ export async function POST(req: Request) {
         },
       },
     });
-    if (existingTransactionname) {
+    if (existingCategoryname) {
       return Response.json(
-        { error: "Transaction already taken" },
+        { error: "Category already taken" },
         { status: 200 }
       );
     }
 
-    const newTransaction = await prisma.transaction.create({
+    const newCategory = await prisma.category.create({
       data: {
         name: contentValidated,
         userId: loggedInUser.id,
@@ -83,7 +83,7 @@ export async function POST(req: Request) {
     });
 
     return Response.json(
-      { status: "201", message: "Transaction created", data: newTransaction },
+      { status: "201", message: "Category created", data: newCategory },
       { status: 201 }
     );
   } catch (error) {
@@ -103,14 +103,14 @@ export async function DELETE(req: Request) {
     const IdObj = Object.entries(IdRequest)[0];
 
     if (IdObj[0] === "id") {
-      await prisma.transaction.deleteMany({
+      await prisma.category.deleteMany({
         where: {
           userId: loggedInUser.id,
           id: IdRequest.id,
         },
       });
     } else {
-      await prisma.transaction.deleteMany({
+      await prisma.category.deleteMany({
         where: {
           userId: loggedInUser.id,
           id: {
@@ -121,7 +121,7 @@ export async function DELETE(req: Request) {
     }
 
     return Response.json(
-      { status: "200", message: "Transaction deleted" },
+      { status: "200", message: "Category deleted" },
       { status: 200 }
     );
   } catch (error) {
@@ -138,9 +138,9 @@ export async function PATCH(req: Request) {
     }
 
     const { id, name } = await req.json();
-    const { name: contentValidated } = TransactionsSchema.parse({ name });
+    const { name: contentValidated } = CategoriesSchema.parse({ name });
 
-    const transactionExisted = await prisma.transaction.findFirst({
+    const categoryExisted = await prisma.category.findFirst({
       where: {
         userId: loggedInUser.id,
         id: {
@@ -153,16 +153,16 @@ export async function PATCH(req: Request) {
         },
       },
     });
-    if (transactionExisted) {
+    if (categoryExisted) {
       return Response.json(
         {
           status: "200",
-          error: "Transaction already taken",
+          error: "Category already taken",
         },
         { status: 200 }
       );
     }
-    const updatedTransaction = await prisma.transaction.update({
+    const updatedCategory = await prisma.category.update({
       where: { id },
       data: {
         name: contentValidated,
@@ -171,8 +171,8 @@ export async function PATCH(req: Request) {
     return Response.json(
       {
         status: "200",
-        message: "Successed to edit transaction",
-        data: updatedTransaction,
+        message: "Successed to edit category",
+        data: updatedCategory,
       },
       { status: 200 }
     );

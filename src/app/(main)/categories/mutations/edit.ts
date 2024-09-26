@@ -1,27 +1,27 @@
-import { TransactionInfo } from "@/lib/types";
+import { CategoryInfo } from "@/lib/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/hooks/use-toast";
 import kyInstance from "@/lib/ky";
 
-const editTransactionRequest = async (
-  data: TransactionInfo
+const editCategoryRequest = async (
+  data: CategoryInfo
 ): Promise<{
   status?: string;
   message?: string;
   error?: string;
 }> =>
   kyInstance
-    .patch(`/api/transactions/table-data`, {
+    .patch(`/api/categories/table-data`, {
       json: data,
     })
     .json<{ message?: string; error?: string }>();
 
-export function useEditTransactionMutation() {
+export function useEditCategoryMutation() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: editTransactionRequest,
+    mutationFn: editCategoryRequest,
     onSuccess: async (res: {
       status?: string;
       message?: string;
@@ -36,7 +36,7 @@ export function useEditTransactionMutation() {
       if (res.status === "200") {
         const queries = queryClient.getQueryCache().getAll();
         queries.forEach((query) => {
-          if (query.queryKey[0] === "transaction") {
+          if (query.queryKey[0] === "category") {
             queryClient.invalidateQueries({ queryKey: query.queryKey });
           }
         });
@@ -46,7 +46,7 @@ export function useEditTransactionMutation() {
       console.error(error);
       toast({
         variant: "destructive",
-        description: "Failed to edit transaction. Please try again.",
+        description: "Failed to edit category. Please try again.",
       });
     },
   });

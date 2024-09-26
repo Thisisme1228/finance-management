@@ -42,23 +42,23 @@ export function getAccountDataInclude() {
   } satisfies Prisma.AccountInclude;
 }
 
-export type TransactionsData = Prisma.TransactionGetPayload<{
-  include: ReturnType<typeof getTransactionsDataInclude>;
+export type CategoriesData = Prisma.CategoryGetPayload<{
+  include: ReturnType<typeof getCategoriesDataInclude>;
 }>;
 
-export interface TransactionsPage {
-  data: TransactionsData[];
+export interface CategoriesPage {
+  data: CategoriesData[];
   totalCount: number;
 }
 
-export interface TransactionInfo {
+export interface CategoryInfo {
   id: string;
   userId?: string;
   name: string;
   createdAt?: Date;
 }
 
-export interface TransactionData {
+export interface CategoryData {
   title: string;
   subtitle: string;
   buttonText: string;
@@ -66,10 +66,10 @@ export interface TransactionData {
   name?: string;
 }
 
-export function getTransactionsDataInclude() {
+export function getCategoriesDataInclude() {
   return {
     user: {
       select: getUserDataSelect(),
     },
-  } satisfies Prisma.TransactionInclude;
+  } satisfies Prisma.CategoryInclude;
 }

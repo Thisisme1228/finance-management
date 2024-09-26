@@ -12,19 +12,19 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useState } from "react";
-import { TransactionsValues, TransactionsSchema } from "@/lib/validation";
+import { CategoriesValues, CategoriesSchema } from "@/lib/validation";
 
 type Props = {
   id?: string;
-  defaultValues?: TransactionsValues;
-  onSubmit: (values: TransactionsValues, id?: string) => void;
+  defaultValues?: CategoriesValues;
+  onSubmit: (values: CategoriesValues, id?: string) => void;
   onDelete?: () => void;
   disabled?: boolean;
   isPending?: boolean;
   buttonText?: string;
 };
 
-export const TransactionForm = ({
+export const CategoryForm = ({
   id,
   defaultValues,
   onSubmit,
@@ -36,13 +36,13 @@ export const TransactionForm = ({
   const [error, setError] = useState<string>();
 
   // 1. Define your form.
-  const form = useForm<TransactionsValues>({
-    resolver: zodResolver(TransactionsSchema),
+  const form = useForm<CategoriesValues>({
+    resolver: zodResolver(CategoriesSchema),
     defaultValues,
   });
 
   // 2. Define a submit handler.
-  const handleSubmit = (values: TransactionsValues) => {
+  const handleSubmit = (values: CategoriesValues) => {
     onSubmit(values, id);
   };
 

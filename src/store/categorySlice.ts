@@ -1,18 +1,18 @@
-import { TransactionData } from "@/lib/types";
+import { CategoryData } from "@/lib/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-type TransactionState = {
+type CategoryState = {
   isOpen: boolean;
-  data?: TransactionData | null;
+  data?: CategoryData | null;
 };
 
-const initialState: TransactionState = {
+const initialState: CategoryState = {
   isOpen: false,
   data: null,
 };
 
-const transactionSlice = createSlice({
-  name: "transactionModal",
+const categorySlice = createSlice({
+  name: "categoryModal",
   initialState,
   reducers: {
     open: (state, action: PayloadAction<any>) => {
@@ -25,5 +25,5 @@ const transactionSlice = createSlice({
   },
 });
 
-export const { open, close } = transactionSlice.actions;
-export default transactionSlice.reducer;
+export const { open, close } = categorySlice.actions;
+export default categorySlice.reducer;
