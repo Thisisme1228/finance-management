@@ -17,6 +17,7 @@ model User {
   id       String    @id
   username  String @unique
   displayName String
+  avatarUrl  String?
   email String  @unique
   passwordHash	 String
   sessions Session[]

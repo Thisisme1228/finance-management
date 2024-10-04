@@ -42,3 +42,9 @@ export const TransactionsSchema = z.object({
 });
 
 export type TransactionsValues = z.infer<typeof TransactionsSchema>;
+
+export const updateUserProfileSchema = z.object({
+  displayName: requiredString,
+});
+
+export type UpdateUserProfileValues = z.infer<typeof updateUserProfileSchema>;

@@ -1,5 +1,5 @@
 "use client";
-
+import { format } from "date-fns";
 import { Loader2, Plus, ArrowUpDown, TriangleAlert } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -94,8 +94,8 @@ const TransactionsTablePage = () => {
         );
       },
       cell: ({ row }) => {
-        const date = row.original.createdAt;
-        return <span>{date && formatRelativeDate(date)}</span>;
+        const date = row.original.date as Date;
+        return <span>{format(date, "dd MMMM, yyyy")}</span>;
       },
     },
     {

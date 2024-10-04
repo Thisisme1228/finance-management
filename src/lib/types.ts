@@ -112,6 +112,10 @@ export interface TransactionData {
   date?: string;
 }
 
+export type UserData = Prisma.UserGetPayload<{
+  select: ReturnType<typeof getUserDataSelect>;
+}>;
+
 export function getTransactionsDataInclude() {
   return {
     user: {
