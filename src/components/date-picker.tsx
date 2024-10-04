@@ -35,6 +35,7 @@ export const DatePicker = ({ value, onChange, disabled }: Props) => {
           {value ? format(value, "PPP") : <span>Pick a date</span>}
         </Button>
       </PopoverTrigger>
+      {/* @ts-ignore */}
       <PopoverContent>
         <Calendar
           mode="single"
