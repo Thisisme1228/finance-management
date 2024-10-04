@@ -21,6 +21,7 @@ type Props = {
 export const DatePicker = ({ value, onChange, disabled }: Props) => {
   return (
     <Popover>
+      {/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */}
       <PopoverTrigger asChild>
         <Button
           disabled={disabled}
