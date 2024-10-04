@@ -21,7 +21,7 @@ export interface AccountsPage {
 
 export interface AccountInfo {
   id: string;
-  userId?: string;
+  user_id?: string;
   name: string;
   createdAt?: Date;
 }
@@ -53,7 +53,7 @@ export interface CategoriesPage {
 
 export interface CategoryInfo {
   id: string;
-  userId?: string;
+  user_id?: string;
   name: string;
   createdAt?: Date;
 }
@@ -72,4 +72,62 @@ export function getCategoriesDataInclude() {
       select: getUserDataSelect(),
     },
   } satisfies Prisma.CategoryInclude;
+}
+
+export type TransactionsData = Prisma.TransactionGetPayload<{
+  include: ReturnType<typeof getTransactionsDataInclude>;
+}>;
+
+export interface TransactionsPage {
+  data: TransactionsData[];
+  totalCount: number;
+}
+
+export interface TransactionInfo {
+  id?: string;
+  userId?: string;
+  amount?: string;
+  notes?: string;
+  account?: { name: string; id: string };
+  account_id?: string;
+  category?: { name: string; id: string };
+  category_id?: string;
+  payee?: string;
+  date?: Date;
+  createdAt?: Date;
+}
+
+export interface TransactionData {
+  title: string;
+  subtitle: string;
+  buttonText: string;
+  data?: {};
+  id?: string;
+  amount?: string;
+  notes?: string;
+  account_id?: string;
+  category_id?: string;
+  userId?: string;
+  payee?: string;
+  date?: string;
+}
+
+export function getTransactionsDataInclude() {
+  return {
+    user: {
+      select: getUserDataSelect(),
+    },
+    category: {
+      select: {
+        id: true,
+        name: true,
+      },
+    },
+    account: {
+      select: {
+        id: true,
+        name: true,
+      },
+    },
+  } satisfies Prisma.TransactionInclude;
 }

@@ -6,10 +6,8 @@ import { CategoriesSchema } from "@/lib/validation";
 
 export async function GET(req: NextRequest) {
   try {
-    const pageSize = parseInt(req.nextUrl.searchParams.get("pageSize") ?? "10");
-    const pageIndex = parseInt(
-      req.nextUrl.searchParams.get("pageIndex") ?? "0"
-    );
+    const pageSize = req.nextUrl.searchParams.get("pageSize");
+    const pageIndex = req.nextUrl.searchParams.get("pageIndex");
     const { user } = await validateRequest();
 
     if (!user) {
@@ -19,23 +17,34 @@ export async function GET(req: NextRequest) {
     // Fetch the total count of category
     const totalCount = await prisma.category.count({
       where: {
-        userId: user.id,
+        user_id: user.id,
       },
     });
 
     // Fetch the paginated categories
-    const categories = await prisma.category.findMany({
-      where: {
-        userId: user.id,
-      },
-      include: getCategoriesDataInclude(),
-      orderBy: { createdAt: "desc" },
-      take: pageSize,
-      skip: pageIndex * pageSize,
-    });
+    let categories = [];
+    if (pageSize) {
+      categories = await prisma.category.findMany({
+        where: {
+          user_id: user.id,
+        },
+        include: getCategoriesDataInclude(),
+        orderBy: { createdAt: "desc" },
+        take: parseInt(pageSize),
+        skip: parseInt(pageIndex ?? "0") * parseInt(pageSize ?? "10"),
+      });
+    } else {
+      categories = await prisma.category.findMany({
+        where: {
+          user_id: user.id,
+        },
+        include: getCategoriesDataInclude(),
+        orderBy: { createdAt: "desc" },
+      });
+    }
 
     const data: CategoriesPage = {
-      data: categories,
+      data: categories || [],
       totalCount,
     };
 
@@ -60,7 +69,7 @@ export async function POST(req: Request) {
     // TODO: check if category is already used
     const existingCategoryname = await prisma.category.findFirst({
       where: {
-        userId: loggedInUser.id,
+        user_id: loggedInUser.id,
         name: {
           equals: contentValidated,
           //Case-insensitive means the program ignores case and matches values regardless of their lower or upper case letters
@@ -78,7 +87,7 @@ export async function POST(req: Request) {
     const newCategory = await prisma.category.create({
       data: {
         name: contentValidated,
-        userId: loggedInUser.id,
+        user_id: loggedInUser.id,
       },
     });
 
@@ -105,14 +114,14 @@ export async function DELETE(req: Request) {
     if (IdObj[0] === "id") {
       await prisma.category.deleteMany({
         where: {
-          userId: loggedInUser.id,
+          user_id: loggedInUser.id,
           id: IdRequest.id,
         },
       });
     } else {
       await prisma.category.deleteMany({
         where: {
-          userId: loggedInUser.id,
+          user_id: loggedInUser.id,
           id: {
             in: IdRequest.ids,
           },
@@ -142,7 +151,7 @@ export async function PATCH(req: Request) {
 
     const categoryExisted = await prisma.category.findFirst({
       where: {
-        userId: loggedInUser.id,
+        user_id: loggedInUser.id,
         id: {
           not: id,
         },

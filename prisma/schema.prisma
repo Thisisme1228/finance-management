@@ -21,6 +21,7 @@ model User {
   passwordHash	 String
   sessions Session[]
   accounts Account[]
+  transactions Transaction[]
   categories Category[]
   createdAt DateTime @default(now())
 
@@ -39,10 +40,10 @@ model Session {
 
 model Account{
   id      String @id @default(cuid())
-  userId  String
+  user_id  String
   name    String
-
-  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+  transaction Transaction[]
+  user      User     @relation(references: [id], fields: [user_id], onDelete: Cascade)
   
   createdAt DateTime @default(now())
   @@map("accounts")
@@ -50,11 +51,28 @@ model Account{
 
 model Category{
   id      String @id @default(cuid())
-  userId  String
+  user_id  String
   name    String 
-
-  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+  transaction Transaction[]
+  user      User     @relation(references: [id], fields: [user_id], onDelete: Cascade)
   
   createdAt DateTime @default(now())
   @@map("categories")
+}
+
+model Transaction{
+  id      String @id @default(cuid())
+  userId  String
+  amount  Decimal
+  notes    String 
+  payee   String 
+  date    DateTime
+  account_id String
+  account Account @relation(fields: [account_id], references: [id], onDelete: Cascade)
+  category_id String
+  category Category  @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  @@map("transactions")
 }

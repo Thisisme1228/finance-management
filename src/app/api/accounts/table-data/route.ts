@@ -6,10 +6,9 @@ import { AccountSchema } from "@/lib/validation";
 
 export async function GET(req: NextRequest) {
   try {
-    const pageSize = parseInt(req.nextUrl.searchParams.get("pageSize") ?? "10");
-    const pageIndex = parseInt(
-      req.nextUrl.searchParams.get("pageIndex") ?? "0"
-    );
+    const pageSize = req.nextUrl.searchParams.get("pageSize");
+    const pageIndex = req.nextUrl.searchParams.get("pageIndex");
+
     const { user } = await validateRequest();
 
     if (!user) {
@@ -19,26 +18,37 @@ export async function GET(req: NextRequest) {
     // Fetch the total count of accounts
     const totalCount = await prisma.account.count({
       where: {
-        userId: user.id,
+        user_id: user.id,
       },
     });
 
     // Fetch the paginated accounts
-    const accounts = await prisma.account.findMany({
-      where: {
-        userId: user.id,
-      },
-      include: getAccountDataInclude(),
-      orderBy: { createdAt: "desc" },
-      take: pageSize,
-      skip: pageIndex * pageSize,
-    });
+    let accounts = [];
+    if (pageSize) {
+      accounts = await prisma.account.findMany({
+        where: {
+          user_id: user.id,
+        },
+        include: getAccountDataInclude(),
+        orderBy: { createdAt: "desc" },
+        take: parseInt(pageSize),
+        skip: parseInt(pageIndex ?? "0") * parseInt(pageSize),
+      });
+    } else {
+      accounts = await prisma.account.findMany({
+        where: {
+          user_id: user.id,
+        },
+        include: getAccountDataInclude(),
+        orderBy: { createdAt: "desc" },
+      });
+    }
 
     const data: AccountsPage = {
       data: accounts,
       totalCount,
     };
-
+    console.log("data", data);
     return Response.json({ ...data, message: "Success", status: 200 });
   } catch (error) {
     console.error(error);
@@ -60,7 +70,7 @@ export async function POST(req: Request) {
     // TODO: check if account is already used
     const existingAccountname = await prisma.account.findFirst({
       where: {
-        userId: loggedInUser.id,
+        user_id: loggedInUser.id,
         name: {
           equals: contentValidated,
           //Case-insensitive means the program ignores case and matches values regardless of their lower or upper case letters
@@ -75,7 +85,7 @@ export async function POST(req: Request) {
     const newAccount = await prisma.account.create({
       data: {
         name: contentValidated,
-        userId: loggedInUser.id,
+        user_id: loggedInUser.id,
       },
     });
 
@@ -102,14 +112,14 @@ export async function DELETE(req: Request) {
     if (IdObj[0] === "id") {
       await prisma.account.deleteMany({
         where: {
-          userId: loggedInUser.id,
+          user_id: loggedInUser.id,
           id: IdRequest.id,
         },
       });
     } else {
       await prisma.account.deleteMany({
         where: {
-          userId: loggedInUser.id,
+          user_id: loggedInUser.id,
           id: {
             in: IdRequest.ids,
           },
@@ -139,7 +149,7 @@ export async function PATCH(req: Request) {
 
     const accountExisted = await prisma.account.findFirst({
       where: {
-        userId: loggedInUser.id,
+        user_id: loggedInUser.id,
         id: {
           not: id,
         },

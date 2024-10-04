@@ -157,7 +157,7 @@ export function DataTable<T>({
       </div>
       <div className="rounded-md border w-full position-relative">
         {isFetching && (
-          <div className="absolute left-1/2 top-1/2 -ml-6 -mt-6 text-center">
+          <div className="absolute top-[50%] left-[50%] -ml-6 -mt-6">
             <Loader2 className="size-12 text-slate-300 animate-spin" />
           </div>
         )}

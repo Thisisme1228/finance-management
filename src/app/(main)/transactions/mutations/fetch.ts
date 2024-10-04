@@ -1,6 +1,6 @@
 import kyInstance from "@/lib/ky";
 
-export async function fetchData(options?: {
+export async function fetchData(options: {
   pageIndex: number;
   pageSize: number;
 }) {
@@ -15,22 +15,15 @@ export async function fetchData(options?: {
     totalCount?: number;
     nextCursor?: string;
   } = await kyInstance
-    .get("/api/categories/table-data", {
+    .get("/api/transactions/table-data", {
       searchParams: { ...options },
     })
     .json();
 
   if (status === 200) {
-    if (options?.pageSize) {
-      return {
-        rows: data,
-        pageCount: Math.ceil(totalCount / options.pageSize),
-        rowCount: totalCount,
-        nextCursor,
-      };
-    }
     return {
       rows: data,
+      pageCount: Math.ceil(totalCount / options.pageSize),
       rowCount: totalCount,
       nextCursor,
     };

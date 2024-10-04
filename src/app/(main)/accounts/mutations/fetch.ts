@@ -1,6 +1,6 @@
 import kyInstance from "@/lib/ky";
 
-export async function fetchData(options: {
+export async function fetchData(options?: {
   pageIndex: number;
   pageSize: number;
 }) {
@@ -21,9 +21,16 @@ export async function fetchData(options: {
     .json();
 
   if (status === 200) {
+    if (options?.pageSize) {
+      return {
+        rows: data,
+        pageCount: Math.ceil(totalCount / options.pageSize),
+        rowCount: totalCount,
+        nextCursor,
+      };
+    }
     return {
       rows: data,
-      pageCount: Math.ceil(totalCount / options.pageSize),
       rowCount: totalCount,
       nextCursor,
     };

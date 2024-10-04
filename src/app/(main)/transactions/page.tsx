@@ -1,26 +1,27 @@
 "use client";
 
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Plus, ArrowUpDown, TriangleAlert } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { cancel } from "@/store/categoryPaginationSlice";
-import { open } from "@/store/categorySlice";
+import { cancel } from "@/store/transactionPaginationSlice";
+import { open } from "@/store/transactionSlice";
 import { DataTable } from "@/components/ui/datatable";
-import { CategoryInfo } from "@/lib/types";
+import { TransactionInfo } from "@/lib/types";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { useDeleteCategoryMutation } from "@/app/(main)/categories/mutations/delete";
+import { useDeleteTransactionMutation } from "@/app/(main)/transactions/mutations/delete";
 import { ColumnDef, PaginationState } from "@tanstack/react-table";
 import { UseConfirm } from "@/components/hooks/use-confirm";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CaretSortIcon } from "@radix-ui/react-icons";
-import { formatRelativeDate } from "@/lib/utils";
+import { formatRelativeDate, cn, formatCurrency } from "@/lib/utils";
 import { useState, useMemo } from "react";
 import { fetchData } from "./mutations/fetch";
-const CategoriesTablePage = () => {
+import { Badge } from "@/components/ui/badge";
+
+const TransactionsTablePage = () => {
   const { isFirstPage } = useSelector(
-    (state: RootState) => state.categoryPaginationModal
+    (state: RootState) => state.transactionPaginationModal
   );
 
   const dispatch = useDispatch();
@@ -37,10 +38,10 @@ const CategoriesTablePage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFirstPage]);
 
-  const deleteCategories = useDeleteCategoryMutation();
-  const isDisabled = deleteCategories.isPending;
+  const deleteTransactions = useDeleteTransactionMutation();
+  const isDisabled = deleteTransactions.isPending;
   const { data, status, isFetching } = useQuery({
-    queryKey: ["category", pagination],
+    queryKey: ["transaction", pagination],
     queryFn: () => fetchData(pagination),
     placeholderData: keepPreviousData,
   });
@@ -51,12 +52,12 @@ const CategoriesTablePage = () => {
   if (status === "error") {
     return (
       <p className="text-center text-destructive">
-        An error occurred while loading categories.
+        An error occurred while loading transactions.
       </p>
     );
   }
 
-  const columns: ColumnDef<CategoryInfo>[] = [
+  const columns: ColumnDef<TransactionInfo>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -80,35 +81,118 @@ const CategoriesTablePage = () => {
       enableHiding: false,
     },
     {
-      accessorKey: "name",
+      accessorKey: "date",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Name
-            <CaretSortIcon className="ml-2 h-4 w-4" />
+            Date
+            <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         );
       },
-      cell: ({ row }) => (
-        <div className="lowercase">{row.getValue("name")}</div>
-      ),
+      cell: ({ row }) => {
+        const date = row.original.createdAt;
+        return <span>{date && formatRelativeDate(date)}</span>;
+      },
     },
     {
-      accessorKey: "createdAt",
-      header: () => <div className="text-right">CreatedAt</div>,
+      accessorKey: "category",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Category
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
       cell: ({ row }) => {
-        const dateFormated = formatRelativeDate(row.getValue("createdAt"));
-        return <div className="text-right font-medium">{dateFormated}</div>;
+        const category = row.original.category;
+        return (
+          <div
+            className={cn(
+              "flex items-center cursor-pointer hover:underline",
+              !category && "text-rose-500"
+            )}
+          >
+            {!category && <TriangleAlert />}
+            {category?.name || "Uncategorized"}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "payee",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Payee
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+    },
+    {
+      accessorKey: "amount",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Amount
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        const amount = parseFloat(row.getValue("amount"));
+
+        return (
+          <Badge
+            variant={amount < 0 ? "destructive" : "primary"}
+            className="text-xs font-medium px-3.5 py-2.5"
+          >
+            {amount && formatCurrency(amount)}
+          </Badge>
+        );
+      },
+    },
+    {
+      accessorKey: "account",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Account
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        const account = row.original?.account;
+        return (
+          <div className="flex items-center cursor-pointer hover:underline">
+            {account?.name}
+          </div>
+        );
       },
     },
     {
       accessorKey: "actions",
       header: () => <div className="text-right"></div>,
       cell: ({ row }) => {
-        const category = row.original;
+        const transaction = row.original;
         return (
           <div className="text-right">
             <Button
@@ -118,11 +202,10 @@ const CategoriesTablePage = () => {
               onClick={() =>
                 dispatch(
                   open({
-                    title: "Edit category",
-                    subtitle: "Edit a category to track your categories.",
+                    title: "Edit transaction",
+                    subtitle: "Edit a transaction to track your transactions.",
                     buttonText: "Save Changes",
-                    id: category.id,
-                    name: category.name,
+                    data: transaction,
                   })
                 )
               }
@@ -134,8 +217,8 @@ const CategoriesTablePage = () => {
               content="Are you sure you want to delete this row?"
               isDisabled={isDisabled}
               confirm={async () => {
-                const id = category.id;
-                deleteCategories.mutate({ id });
+                const id = transaction.id;
+                deleteTransactions.mutate({ id });
               }}
             >
               <Button size="sm" variant="outline" className="mr-4">
@@ -152,14 +235,17 @@ const CategoriesTablePage = () => {
     <div className="max-x-screen-2xl mx-auto w-full pb-10 -mt-24 z-10">
       <Card className="border-none drop-shadow-sm">
         <CardHeader className="gap-y-2 lg:flex-row lg:items-center lg:justify-between">
-          <CardTitle className="text-xl line-clamp-1">Category page</CardTitle>
+          <CardTitle className="text-xl line-clamp-1">
+            Transaction page
+          </CardTitle>
           <Button
             onClick={() =>
               dispatch(
                 open({
-                  title: "New category",
-                  subtitle: "Create a new category to track your categories.",
-                  buttonText: "Create category",
+                  title: "New transaction",
+                  subtitle:
+                    "Create a new transaction to track your transactions.",
+                  buttonText: "Create transaction",
                 })
               )
             }
@@ -178,7 +264,7 @@ const CategoriesTablePage = () => {
           {status === "success" && !tableData.length && (
             <div className="h-[500px] w-full flex items-center justify-center">
               <p className="text-center text-muted-foreground">
-                No categories found. Create category here.
+                No transactions found. Create transaction here.
               </p>
             </div>
           )}
@@ -186,7 +272,7 @@ const CategoriesTablePage = () => {
             <DataTable
               data={tableData}
               columns={columns}
-              filterKey="name"
+              filterKey="payee"
               confirmTitle="Delete Confirmation"
               confirmContent="Are you sure you want to delete the selected row(s)?"
               disabled={isDisabled}
@@ -196,7 +282,7 @@ const CategoriesTablePage = () => {
               isFetching={isFetching}
               onDelete={(row) => {
                 const ids = row.map((r) => r.id);
-                deleteCategories.mutate({ ids });
+                deleteTransactions.mutate({ ids });
               }}
             />
           ) : null}
@@ -206,4 +292,4 @@ const CategoriesTablePage = () => {
   );
 };
 
-export default CategoriesTablePage;
+export default TransactionsTablePage;

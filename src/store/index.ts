@@ -3,6 +3,8 @@ import accountReducer from "./accountSlice";
 import accountPaginationModal from "./accountPaginationSlice";
 import categoryReducer from "./categorySlice";
 import categoryPaginationModal from "./categoryPaginationSlice";
+import transactionReducer from "./transactionSlice";
+import transactionPaginationModal from "./transactionPaginationSlice";
 
 const store = configureStore({
   reducer: {
@@ -10,6 +12,8 @@ const store = configureStore({
     accountPaginationModal: accountPaginationModal,
     categoryModal: categoryReducer,
     categoryPaginationModal: categoryPaginationModal,
+    transactionModal: transactionReducer,
+    transactionPaginationModal: transactionPaginationModal,
   },
 });
 

@@ -48,7 +48,7 @@ export async function signup(credentials: SignUpValues): Promise<ActionResult> {
       };
     }
     //A database category refers to a sequence of read/write operations that are guaranteed to either succeed or fail as a whole.
-    await prisma.$category(async (tx) => {
+    await prisma.$transaction(async (tx) => {
       // Code running in a category...
       await tx.user.create({
         data: {

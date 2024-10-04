@@ -31,3 +31,14 @@ export const CategoriesSchema = z.object({
 });
 
 export type CategoriesValues = z.infer<typeof CategoriesSchema>;
+
+export const TransactionsSchema = z.object({
+  date: z.coerce.date(),
+  account_id: requiredString,
+  category_id: requiredString,
+  payee: requiredString,
+  amount: requiredString,
+  notes: requiredString,
+});
+
+export type TransactionsValues = z.infer<typeof TransactionsSchema>;
