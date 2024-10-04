@@ -12,7 +12,29 @@ export const useGetSummary = () => {
   const query = useQuery({
     queryKey: from ? ["summary", { from, to, accountId }] : ["summary"],
     queryFn: async () => {
-      const { status, data } = await kyInstance
+      const {
+        status,
+        data,
+      }: {
+        status: number;
+        data: {
+          incomeAmount: number;
+          expensesAmount: number;
+          remainingAmount: number;
+          remainingChange: number;
+          incomeChange: number;
+          expensesChange: number;
+          categories: {
+            name: string;
+            value: string;
+          }[];
+          days: {
+            date: string;
+            income: number;
+            expenses: number;
+          }[];
+        };
+      } = await kyInstance
         .get(
           "/api/summary",
           from ? { searchParams: { from, to, accountId } } : {}
@@ -23,10 +45,10 @@ export const useGetSummary = () => {
       }
       return {
         ...data,
-        incomeAmount: data.incomeAmount,
-        expensesAmount: data.expensesAmount,
-        remainingAmount: data.remainingAmount,
-        categories: data.categories.map((category) => ({
+        incomeAmount: data?.incomeAmount,
+        expensesAmount: data?.expensesAmount,
+        remainingAmount: data?.remainingAmount,
+        categories: data?.categories?.map((category) => ({
           ...category,
           value: parseFloat(category.value),
         })),
