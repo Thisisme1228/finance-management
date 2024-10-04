@@ -1,4 +1,4 @@
-"use strict";
+import { useEffect, useRef } from "react";
 import {
   Cell,
   Legend,
@@ -22,9 +22,16 @@ type Props = {
 };
 
 export const PieVariant = ({ data = [] }: Props) => {
-  const [ref, { width, height }] = useMeasure();
+  const [measureRef, { width, height }] = useMeasure();
+  const divRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (divRef.current) {
+      measureRef(divRef.current);
+    }
+  }, [divRef, measureRef]);
   return (
-    <ResponsiveContainer width="100%" height={350} ref={ref}>
+    <ResponsiveContainer width="100%" height={350} ref={divRef}>
       <PieChart width={width} height={height}>
         <Legend
           layout="horizontal"

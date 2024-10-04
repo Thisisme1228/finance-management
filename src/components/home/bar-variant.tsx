@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { useEffect, useRef } from "react";
 import {
   Tooltip,
   XAxis,
@@ -19,9 +20,16 @@ type Props = {
 };
 
 export const BarVariant = ({ data }: Props) => {
-  const [ref, { width, height }] = useMeasure();
+  const [measureRef, { width, height }] = useMeasure();
+  const divRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (divRef.current) {
+      measureRef(divRef.current);
+    }
+  }, [divRef, measureRef]);
   return (
-    <ResponsiveContainer width="100%" height={350} ref={ref}>
+    <ResponsiveContainer width="100%" height={350} ref={divRef}>
       <BarChart data={data} width={width} height={height}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis

@@ -27,7 +27,6 @@ export const SpendingPie = ({ data = [] }: Props) => {
     //TODO: Add paywall
     setChartType(type);
   };
-  console.log(data);
   return (
     <Card className="border-none drop-shadow-sm">
       <CardHeader className="flex space-y-2 lg:space-y-0 lg:flex-row lg:items-center justify-between">
