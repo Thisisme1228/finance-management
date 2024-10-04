@@ -18,6 +18,7 @@ type Props = {
   disabled?: boolean;
 };
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const DatePicker = ({ value, onChange, disabled }: Props) => {
   return (
     <Popover>
