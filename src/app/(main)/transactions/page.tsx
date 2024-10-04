@@ -217,7 +217,7 @@ const TransactionsTablePage = () => {
               content="Are you sure you want to delete this row?"
               isDisabled={isDisabled}
               confirm={async () => {
-                const id = transaction.id;
+                const id = transaction.id as string;
                 deleteTransactions.mutate({ id });
               }}
             >
