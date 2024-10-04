@@ -32,7 +32,7 @@ export function useSubmitTransactionMutation() {
       status?: string;
       message?: string;
       error?: string;
-      data?: TransactionsValues | null;
+      data?: TransactionInfo | null;
     }) => {
       // Update the query data or invalidate queries as needed
       toast({
