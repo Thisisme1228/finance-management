@@ -281,7 +281,7 @@ const TransactionsTablePage = () => {
               setPagination={setPagination}
               isFetching={isFetching}
               onDelete={(row) => {
-                const ids = row.map((r) => r.id);
+                const ids = row.map((r) => r.id as string);
                 deleteTransactions.mutate({ ids });
               }}
             />
