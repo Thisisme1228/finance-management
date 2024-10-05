@@ -3,6 +3,10 @@ import prisma from "@/lib/prisma";
 import { getTransactionsDataInclude, TransactionsPage } from "@/lib/types";
 import { NextRequest } from "next/server";
 import { TransactionsSchema } from "@/lib/validation";
+import {
+  convertAmountFromMiliunits,
+  convertAmountToMiliunits,
+} from "@/lib/utils";
 
 export async function GET(req: NextRequest) {
   try {
@@ -29,13 +33,18 @@ export async function GET(req: NextRequest) {
         userId: user.id,
       },
       include: getTransactionsDataInclude(),
-      orderBy: { createdAt: "desc" },
+      orderBy: { date: "desc" },
       take: pageSize,
       skip: pageIndex * pageSize,
     });
 
+    const convertedData = transactions.map((transaction) => ({
+      ...transaction,
+      amount: convertAmountFromMiliunits(Number(transaction.amount)),
+    }));
+
     const data: TransactionsPage = {
-      data: transactions,
+      data: convertedData,
       totalCount,
     };
 
@@ -57,10 +66,14 @@ export async function POST(req: Request) {
     const data = await req.json();
     const contentValidated = TransactionsSchema.parse(data);
 
+    const amount = parseFloat(contentValidated.amount);
+    const amountInMiliunits = convertAmountToMiliunits(amount);
+
     const newTransaction = await prisma.transaction.create({
       data: {
         ...contentValidated,
         userId: loggedInUser.id,
+        amount: amountInMiliunits,
       },
     });
 
@@ -122,10 +135,14 @@ export async function PATCH(req: Request) {
     const data = await req.json();
     const contentValidated = TransactionsSchema.parse(data);
 
+    const amount = parseFloat(contentValidated.amount);
+    const amountInMiliunits = convertAmountToMiliunits(amount);
+
     const updatedTransaction = await prisma.transaction.update({
       where: { id: data.id },
       data: {
         ...contentValidated,
+        amount: amountInMiliunits,
       },
     });
     return Response.json(

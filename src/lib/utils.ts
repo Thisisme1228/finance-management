@@ -1,7 +1,13 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { formatDate, formatDistanceToNowStrict } from "date-fns";
-import { eachDayOfInterval, format, isSameDay, subDays } from "date-fns";
+import {
+  eachDayOfInterval,
+  format,
+  isSameDay,
+  subDays,
+  formatDate,
+  formatDistanceToNowStrict,
+} from "date-fns";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -72,6 +78,8 @@ export function formatPercentage(
 }
 
 export function calculatePercentage(current: number, previous: number) {
+  console.log(current);
+  console.log(previous);
   if (previous === 0) {
     return previous === current ? 0 : 100;
   }
@@ -116,3 +124,24 @@ export function fillMissingDays(
 export function convertAmountFromMiliunits(amount: number) {
   return amount / 1000;
 }
+
+export function removeEmptyAttributes(obj: { [key: string]: any }) {
+  Object.keys(obj).forEach((key) => {
+    if (obj[key] === null || obj[key] === undefined || obj[key] === "") {
+      delete obj[key];
+    }
+  });
+  if (Object.keys(obj).length === 0) return null;
+  return obj;
+}
+
+export function convertAmountToMiliunits(amount: number) {
+  return Math.round(amount * 1000);
+}
+
+export const conciseFormatPercentage = (
+  value: number,
+  decimals: number = 2
+): string => {
+  return `${(value * 100).toFixed(decimals)}%`;
+};

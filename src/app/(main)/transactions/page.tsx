@@ -18,8 +18,26 @@ import { formatRelativeDate, cn, formatCurrency } from "@/lib/utils";
 import { useState, useMemo } from "react";
 import { fetchData } from "./mutations/fetch";
 import { Badge } from "@/components/ui/badge";
+import { UploadButton } from "@/components/transactions/upload-button";
+import { useSelectAccount } from "@/components/transactions/use-select-account";
+import { ImportCard } from "@/components/transactions/import-card";
+import { useToast } from "@/components/ui/use-toast";
+import { useSubmitBulkTransactionMutation } from "@/app/(main)/transactions/mutations/bulk-add";
+import { returnFirstPage } from "@/store/transactionPaginationSlice";
+
+enum VARIANTS {
+  LIST = "LIST",
+  IMPORT = "IMPORT",
+}
+
+const INITIAL_IMPORT_RESULTS = {
+  data: [],
+  errors: [],
+  meta: [],
+};
 
 const TransactionsTablePage = () => {
+  const { toast } = useToast();
   const { isFirstPage } = useSelector(
     (state: RootState) => state.transactionPaginationModal
   );
@@ -29,6 +47,9 @@ const TransactionsTablePage = () => {
     pageIndex: 0,
     pageSize: 10,
   });
+  const [AccountDialog, confirm] = useSelectAccount();
+  const [variant, setVariant] = useState<VARIANTS>(VARIANTS.LIST);
+  const [importResults, setImportResults] = useState(INITIAL_IMPORT_RESULTS);
 
   useMemo(() => {
     if (isFirstPage) {
@@ -39,6 +60,7 @@ const TransactionsTablePage = () => {
   }, [isFirstPage]);
 
   const deleteTransactions = useDeleteTransactionMutation();
+  const createTransactions = useSubmitBulkTransactionMutation();
   const isDisabled = deleteTransactions.isPending;
   const { data, status, isFetching } = useQuery({
     queryKey: ["transaction", pagination],
@@ -56,6 +78,17 @@ const TransactionsTablePage = () => {
       </p>
     );
   }
+
+  const onUpload = (results: typeof INITIAL_IMPORT_RESULTS) => {
+    console.log(results);
+    setImportResults(results);
+    setVariant(VARIANTS.IMPORT);
+  };
+
+  const onCancelImport = () => {
+    setImportResults(INITIAL_IMPORT_RESULTS);
+    setVariant(VARIANTS.LIST);
+  };
 
   const columns: ColumnDef<TransactionInfo>[] = [
     {
@@ -231,6 +264,42 @@ const TransactionsTablePage = () => {
     },
   ];
 
+  const onSubmitImport = async (values) => {
+    const accountId = await confirm();
+
+    if (!accountId) {
+      toast({
+        variant: "destructive",
+        description: "Please select an account to continue.",
+      });
+    }
+
+    const data = values.map((value: TransactionInfo) => ({
+      ...value,
+      account_id: accountId as string,
+    }));
+
+    createTransactions.mutate(data, {
+      onSuccess: () => {
+        dispatch(returnFirstPage());
+        onCancelImport();
+      },
+    });
+  };
+
+  if (variant === VARIANTS.IMPORT) {
+    return (
+      <>
+        <AccountDialog />
+        <ImportCard
+          data={importResults.data}
+          onCancel={onCancelImport}
+          onSubmit={onSubmitImport}
+        />
+      </>
+    );
+  }
+
   return (
     <div className="max-x-screen-2xl mx-auto w-full pb-10 -mt-24 z-10">
       <Card className="border-none drop-shadow-sm">
@@ -238,22 +307,26 @@ const TransactionsTablePage = () => {
           <CardTitle className="text-xl line-clamp-1">
             Transaction page
           </CardTitle>
-          <Button
-            onClick={() =>
-              dispatch(
-                open({
-                  title: "New transaction",
-                  subtitle:
-                    "Create a new transaction to track your transactions.",
-                  buttonText: "Create transaction",
-                })
-              )
-            }
-            size="sm"
-          >
-            <Plus className="size-4 mr-2" />
-            Add new
-          </Button>
+          <div className="flex flex-col lg:flex-row gap-y-2 items-center gap-x-2">
+            <Button
+              className="w-full lg:w-auto"
+              onClick={() =>
+                dispatch(
+                  open({
+                    title: "New transaction",
+                    subtitle:
+                      "Create a new transaction to track your transactions.",
+                    buttonText: "Create transaction",
+                  })
+                )
+              }
+              size="sm"
+            >
+              <Plus className="size-4 mr-2" />
+              Add new
+            </Button>
+            <UploadButton onUpload={onUpload} />
+          </div>
         </CardHeader>
         <CardContent>
           {status === "pending" && (

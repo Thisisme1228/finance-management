@@ -65,13 +65,13 @@ model Transaction{
   id      String @id @default(cuid())
   userId  String
   amount  Decimal
-  notes    String 
+  notes    String?
   payee   String 
   date    DateTime
   account_id String
   account Account @relation(fields: [account_id], references: [id], onDelete: Cascade)
-  category_id String
-  category Category  @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  category_id String?
+  category Category?  @relation(fields: [category_id], references: [id], onDelete: Cascade)
   user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
   
   createdAt DateTime @default(now())

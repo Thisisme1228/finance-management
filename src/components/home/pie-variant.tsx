@@ -9,7 +9,7 @@ import {
 } from "recharts";
 import { useMeasure } from "react-use";
 
-import { formatPercentage } from "@/lib/utils";
+import { conciseFormatPercentage } from "@/lib/utils";
 import { CategoryTooltip } from "./category-tooltip";
 
 const COLORS = ["#0062FF", "#12C6FF", "#FF647F", "#FF9354"];
@@ -55,7 +55,8 @@ export const PieVariant = ({ data = [] }: Props) => {
                         {entry.value}
                       </span>
                       <span className="text-sm">
-                        {formatPercentage(entry.payload.percent * 100)}
+                        {/* {formatPercentage(entry.payload.percent * 100)} */}
+                        {conciseFormatPercentage(entry.payload.percent)}
                       </span>
                     </div>
                   </li>

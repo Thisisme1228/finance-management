@@ -5,31 +5,31 @@ import kyInstance from "@/lib/ky";
 import { useSelector } from "react-redux";
 import { removeEmptyAttributes } from "@/lib/utils";
 
-const submitTransactionRequest = async (
-  data: TransactionInfo
+const submitBulkTransactionRequest = async (
+  data: TransactionInfo[]
 ): Promise<{
   status?: string;
   message?: string;
   error?: string;
-  data?: TransactionInfo | null;
+  count?: number;
 }> =>
   kyInstance
-    .post(`/api/transactions/table-data`, {
-      json: removeEmptyAttributes(data),
+    .post(`/api/transactions/table-data-bulk`, {
+      json: data,
     })
     .json<{ message?: string; error?: string }>();
 
-export function useSubmitTransactionMutation() {
+export function useSubmitBulkTransactionMutation() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: submitTransactionRequest,
+    mutationFn: submitBulkTransactionRequest,
     onSuccess: async (res: {
       status?: string;
       message?: string;
       error?: string;
-      data?: TransactionInfo | null;
+      count?: number;
     }) => {
       // Update the query data or invalidate queries as needed
       toast({

@@ -35,10 +35,17 @@ export type CategoriesValues = z.infer<typeof CategoriesSchema>;
 export const TransactionsSchema = z.object({
   date: z.coerce.date(),
   account_id: requiredString,
-  category_id: requiredString,
+  category_id: z.string().nullable().optional(),
   payee: requiredString,
   amount: requiredString,
-  notes: requiredString,
+  notes: z.string().nullable().optional(),
+});
+
+export const TransactionsCsvSchema = z.object({
+  date: z.coerce.date(),
+  account_id: requiredString,
+  payee: requiredString,
+  amount: z.string().transform((val: string) => parseFloat(val)),
 });
 
 export type TransactionsValues = z.infer<typeof TransactionsSchema>;

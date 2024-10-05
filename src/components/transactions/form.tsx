@@ -7,7 +7,6 @@ import { DatePicker } from "@/components/date-picker";
 import { Loader2 } from "lucide-react";
 import { Select } from "@/components/select";
 import { AmountInput } from "@/components/amount-input";
-
 import { TransactionInfo } from "@/lib/types";
 import {
   Form,
@@ -60,9 +59,18 @@ export const TransactionForm = ({
   // 2. Define a submit handler.
   const handleSubmit = (values: TransactionsValues) => {
     if (data?.id) {
-      onSubmit({ ...values, id: data?.id });
+      onSubmit({
+        ...values,
+        notes: values["notes"] ?? "",
+        category_id: values["category_id"] ?? "",
+        id: data?.id,
+      });
     } else {
-      onSubmit({ ...values });
+      onSubmit({
+        ...values,
+        notes: values["notes"] ?? "",
+        category_id: values["category_id"] ?? "",
+      });
     }
   };
 

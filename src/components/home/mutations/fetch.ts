@@ -1,16 +1,16 @@
 import { useSearchParams } from "next/navigation";
 import kyInstance from "@/lib/ky";
 import { useQuery } from "@tanstack/react-query";
-import { convertAmountFromMiliunits } from "@/lib/utils";
+import { convertAmountFromMiliunits, removeEmptyAttributes } from "@/lib/utils";
 
 export const useGetSummary = () => {
   const params = useSearchParams();
   const from = params.get("from") || "";
   const to = params.get("to") || "";
   const accountId = params.get("accountId") || "";
-
+  const paramsObj = removeEmptyAttributes({ from, to, accountId });
   const query = useQuery({
-    queryKey: from ? ["summary", { from, to, accountId }] : ["summary"],
+    queryKey: paramsObj ? ["summary", paramsObj] : ["summary"],
     queryFn: async () => {
       const {
         status,
@@ -37,7 +37,11 @@ export const useGetSummary = () => {
       } = await kyInstance
         .get(
           "/api/summary",
-          from ? { searchParams: { from, to, accountId } } : {}
+          paramsObj
+            ? {
+                searchParams: paramsObj,
+              }
+            : {}
         )
         .json();
       if (status !== 200) {

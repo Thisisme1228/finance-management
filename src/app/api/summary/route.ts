@@ -1,10 +1,12 @@
 import { validateRequest } from "@/auth";
 import prisma from "@/lib/prisma";
 import { subDays, parse, differenceInDays } from "date-fns";
-import { calculatePercentage, fillMissingDays } from "@/lib/utils";
-import { getCategoriesDataInclude, CategoriesPage } from "@/lib/types";
+import {
+  calculatePercentage,
+  convertAmountFromMiliunits,
+  fillMissingDays,
+} from "@/lib/utils";
 import { NextRequest } from "next/server";
-import { CategoriesSchema } from "@/lib/validation";
 
 interface FinancialData {
   income: number;
@@ -36,22 +38,29 @@ export async function GET(req: NextRequest) {
     const lastPeriodStart = subDays(startDate, periodLength);
     const lastPeriodEnd = subDays(endDate, periodLength);
 
+    const accountIdCondition = accountId
+      ? `AND transactions.account_id = '${accountId}'`
+      : "";
+
     async function fetchFinancialData(
       userId: string,
       startDate: Date,
       endDate: Date
     ): Promise<FinancialData[]> {
-      return await prisma.$queryRaw<FinancialData[]>`
-        SELECT
-          SUM(CASE WHEN amount >= 0 THEN amount ELSE 0 END) as income,
-          SUM(CASE WHEN amount < 0 THEN amount ELSE 0 END) as expenses,
-          SUM(amount) as remaining
-        FROM transactions
-        INNER JOIN accounts ON transactions.account_id = accounts.id
-        WHERE accounts.user_id = ${userId}
-          AND transactions.date >= ${startDate}
-          AND transactions.date <= ${endDate}
-      `;
+      const query = `
+      SELECT
+        SUM(CASE WHEN amount >= 0 THEN amount ELSE 0 END) as income,
+        SUM(CASE WHEN amount < 0 THEN amount ELSE 0 END) as expenses,
+        SUM(amount) as remaining
+      FROM transactions
+      INNER JOIN accounts ON transactions.account_id = accounts.id
+      WHERE accounts.user_id = '${userId}'
+        AND transactions.date >= '${startDate.toISOString()}'
+        AND transactions.date <= '${endDate.toISOString()}'
+        ${accountIdCondition}
+    `;
+
+      return await prisma.$queryRawUnsafe<FinancialData[]>(query);
     }
 
     const [currentPeriod] = await fetchFinancialData(
@@ -77,10 +86,6 @@ export async function GET(req: NextRequest) {
       currentPeriod.remaining,
       lastPeriod.remaining
     );
-
-    const accountIdCondition = accountId
-      ? `AND transactions.account_id = '${accountId}'`
-      : "";
 
     const query = `
         SELECT 
@@ -141,18 +146,29 @@ export async function GET(req: NextRequest) {
 
     const days = fillMissingDays(activeDays, startDate, endDate);
 
+    const convertedDays = days.map((day) => ({
+      date: day.date.toISOString(),
+      income: convertAmountFromMiliunits(day.income),
+      expenses: convertAmountFromMiliunits(day.expenses),
+    }));
+
+    const convertedCategories = finalCategories.map((category) => ({
+      name: category.name,
+      value: convertAmountFromMiliunits(category.value),
+    }));
+
     return Response.json({
       message: "Success",
       status: 200,
       data: {
-        remainingAmount: currentPeriod.remaining,
+        remainingAmount: convertAmountFromMiliunits(currentPeriod.remaining),
         remainingChange,
-        incomeAmount: currentPeriod.income,
+        incomeAmount: convertAmountFromMiliunits(currentPeriod.income),
         incomeChange,
-        expensesAmount: currentPeriod.expenses,
+        expensesAmount: convertAmountFromMiliunits(currentPeriod.expenses),
         expensesChange,
-        categories: finalCategories,
-        days,
+        categories: convertedCategories,
+        days: convertedDays,
       },
     });
   } catch (error) {

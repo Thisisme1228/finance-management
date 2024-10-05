@@ -6,6 +6,7 @@ export function getUserDataSelect() {
     username: true,
     displayName: true,
     createdAt: true,
+    avatarUrl: true,
     //https://www.prisma.io/blog/satisfies-operator-ur8ys8ccq7zb
   } satisfies Prisma.UserSelect; //Infer the output type of methods like findMany and create
 }
@@ -103,7 +104,7 @@ export interface TransactionData {
   buttonText: string;
   data?: {};
   id?: string;
-  amount?: string;
+  amount?: number;
   notes?: string;
   account_id?: string;
   category_id?: string;
