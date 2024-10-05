@@ -264,7 +264,7 @@ const TransactionsTablePage = () => {
     },
   ];
 
-  const onSubmitImport = async (values) => {
+  const onSubmitImport = async (values: TransactionInfo[]) => {
     const accountId = await confirm();
 
     if (!accountId) {
@@ -274,7 +274,7 @@ const TransactionsTablePage = () => {
       });
     }
 
-    const data = values.map((value: TransactionInfo) => ({
+    const data = values.map((value) => ({
       ...value,
       account_id: accountId as string,
     }));

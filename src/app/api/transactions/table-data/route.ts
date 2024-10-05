@@ -7,6 +7,7 @@ import {
   convertAmountFromMiliunits,
   convertAmountToMiliunits,
 } from "@/lib/utils";
+import { Decimal } from "@prisma/client/runtime/library";
 
 export async function GET(req: NextRequest) {
   try {
@@ -40,7 +41,9 @@ export async function GET(req: NextRequest) {
 
     const convertedData = transactions.map((transaction) => ({
       ...transaction,
-      amount: convertAmountFromMiliunits(Number(transaction.amount)),
+      amount: new Decimal(
+        convertAmountFromMiliunits(Number(transaction.amount))
+      ),
     }));
 
     const data: TransactionsPage = {
