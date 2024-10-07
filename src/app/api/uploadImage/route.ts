@@ -64,7 +64,7 @@ export const POST = async (req: NextRequest) => {
     }
 
     // Convert the file data to a Buffer
-    const buffer = Buffer.from(await file.arrayBuffer());
+    const buffer = Buffer.from(await (file as Blob).arrayBuffer());
 
     // Replace spaces in the file name with underscores
     // const filename = file.name.replaceAll(" ", "_");
