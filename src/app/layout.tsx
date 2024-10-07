@@ -4,6 +4,9 @@ import { Roboto } from "next/font/google";
 import ReactQueryProvider from "./ReactQueryProvider";
 import ReduxProviderWrapper from "@/store/provider";
 import { Toaster } from "@/components/ui/toaster";
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+import { extractRouterConfig } from "uploadthing/server";
+import { fileRouter } from "./api/uploadthing/core";
 
 const roboto = Roboto({
   weight: "400",
@@ -26,6 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${roboto.className}`}>
+        <NextSSRPlugin routerConfig={extractRouterConfig(fileRouter)} />
         <ReactQueryProvider>
           <ReduxProviderWrapper>{children}</ReduxProviderWrapper>
         </ReactQueryProvider>

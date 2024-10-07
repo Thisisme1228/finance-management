@@ -4,11 +4,18 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "utfs.io",
-        pathname: `/a/${process.env.NEXT_PUBLIC_UPLOADTHING_APP_ID}/*`,
+        protocol: "http",
+        hostname: "images.thisisme1228.com",
+        // pathname: "/images",
       },
     ],
+    //   remotePatterns: [
+    //     {
+    //       protocol: "https",
+    //       hostname: "utfs.io",
+    //       pathname: `/a/${process.env.NEXT_PUBLIC_UPLOADTHING_APP_ID}/*`,
+    //     },
+    //   ],
   },
 };
 
