@@ -3,7 +3,7 @@ import Link from "next/link";
 import LoginForm from "./LoginForm";
 
 export const metadata: Metadata = {
-  title: "Login",
+  title: "Text Message Login",
 };
 
 export default function Page() {
@@ -16,11 +16,8 @@ export default function Page() {
           </h1>
           <div className="space-y-5">
             <LoginForm />
-            <Link
-              href="/phonelogin"
-              className="block text-center hover:underline"
-            >
-              Username and password not working? Try using phone number to login
+            <Link href="/login" className="block text-center hover:underline">
+              phone number not working? Try using Username and password to login
             </Link>
             <Link href="/signup" className="block text-center hover:underline">
               Don&apos;t have an account? Sign up

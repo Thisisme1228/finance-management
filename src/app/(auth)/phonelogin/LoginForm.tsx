@@ -1,7 +1,15 @@
 "use client";
-
+import { useState, useTransition, useEffect } from "react";
 import LoadingButton from "@/components/loadingButton";
-import { PasswordInput } from "@/components/PasswordInput";
+import { Button } from "@/components/ui/button";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import {
+  textMessageLoginSchema,
+  TextMessageLoginValues,
+  phoneRegex,
+} from "@/lib/validation";
+import { verifyLogin } from "./actions";
 import {
   Form,
   FormControl,
@@ -17,33 +25,23 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { Input } from "@/components/ui/input";
-import { signUpSchema, SignUpValues, phoneRegex } from "@/lib/validation";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
-import { signup } from "./actions";
-import { Button } from "@/components/ui/button";
 import kyInstance from "@/lib/ky";
 
-export default function SignUpForm() {
-  const form = useForm<SignUpValues>({
-    resolver: zodResolver(signUpSchema),
+export default function LoginForm() {
+  // 1. Define your form.
+  const form = useForm<TextMessageLoginValues>({
+    resolver: zodResolver(textMessageLoginSchema),
     defaultValues: {
-      email: "",
-      username: "",
       phone: "",
       OTP: "",
-      password: "",
     },
   });
-
   const [error, setError] = useState<string>();
-  const [timer, setTimer] = useState<number>(0);
-  const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(false);
-  const [isPhoneValid, setIsPhoneValid] = useState(false);
-
+  //useTransition is a React Hook that lets you update the state without blocking the UI.
   const [isPending, startTransition] = useTransition();
-
+  const [timer, setTimer] = useState(0);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  const [isPhoneValid, setIsPhoneValid] = useState(false);
   const phoneNumber = form.watch("phone");
 
   useEffect(() => {
@@ -63,21 +61,18 @@ export default function SignUpForm() {
     setIsPhoneValid(phoneRegex.test(phoneNumber));
   }, [phoneNumber]);
 
-  const handleRequestVerificationCode = (
-    e: React.MouseEvent<HTMLButtonElement>
-  ) => {
+  const handleSendCode = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setError(undefined);
     try {
-      const phone = form.getValues("phone");
       startTransition(async () => {
-        const { status } = await kyInstance
-          .post(`/api/auth/send-verification-code`, {
-            json: { phone },
+        const { error } = await kyInstance
+          .post(`/api/auth/verification-code-login`, {
+            json: { phone: phoneNumber },
           })
-          .json<{ status: number }>();
-        if (status !== 200) {
-          setError("Failed to send SMS");
+          .json<{ error: string }>();
+        if (error) {
+          setError(error);
         } else {
           // Start the timer for 60 seconds
           setTimer(60);
@@ -89,30 +84,25 @@ export default function SignUpForm() {
     }
   };
 
-  async function onSubmit(values: SignUpValues) {
+  async function onSubmit(values: TextMessageLoginValues) {
     setError(undefined);
-    const res = await signup(values);
-    console.log(res);
-    if (res?.error) setError(res.error);
+    try {
+      startTransition(async () => {
+        const response = await verifyLogin(values);
+        console.log(response);
+        if (response.error) {
+          setError(response.error);
+        }
+      });
+    } catch (error) {
+      setError("Failed to login");
+    }
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-        {error && <p className="text-center text-destructive">{error}</p>}
-        <FormField
-          control={form.control}
-          name="username"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Username</FormLabel>
-              <FormControl>
-                <Input placeholder="Username" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <p className="text-center text-destructive h-1">{error}</p>
         <FormField
           control={form.control}
           name="phone"
@@ -133,7 +123,7 @@ export default function SignUpForm() {
                       isButtonDisabled || !isPhoneValid ? "ghost" : "default"
                     }
                     disabled={isButtonDisabled || !isPhoneValid}
-                    onClick={handleRequestVerificationCode}
+                    onClick={handleSendCode}
                     className="absolute right-0 top-1/2 -translate-y-1/2 transform "
                   >
                     {isButtonDisabled ? `${timer}s` : "Send Code"}
@@ -169,34 +159,8 @@ export default function SignUpForm() {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="Email" type="email" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <PasswordInput placeholder="Password" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
         <LoadingButton loading={isPending} type="submit" className="w-full">
-          Create account
+          Log in
         </LoadingButton>
       </form>
     </Form>

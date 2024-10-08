@@ -15,6 +15,7 @@ datasource db {
 
 model User {
   id       String    @id
+  phone     String @unique
   username  String @unique
   displayName String
   avatarUrl  String?
@@ -24,9 +25,21 @@ model User {
   accounts Account[]
   transactions Transaction[]
   categories Category[]
+  verifications Verification[]
   createdAt DateTime @default(now())
 
   @@map("users")
+}
+
+model Verification {
+  id        String   @id @default(uuid())
+   phone    String   @unique
+  code      String
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+
+  @@map("verifications")
 }
 
 model Session {

@@ -8,15 +8,27 @@ import { lucia } from "@/auth";
 import { redirect } from "next/navigation";
 import { generateIdFromEntropySize } from "lucia";
 
-interface ActionResult {
-  error: string;
-}
+// interface ActionResult {
+//   error: string;
+// }
 
-export async function signup(credentials: SignUpValues): Promise<ActionResult> {
+export async function signup(credentials: SignUpValues) {
   try {
-    const { email, username, password } = signUpSchema.parse(credentials);
+    const { email, username, password, phone, OTP } =
+      signUpSchema.parse(credentials);
     const passwordHash = await hash(password);
     const userId = generateIdFromEntropySize(10); // 16 characters long
+
+    // Check if the verification code is correct
+    const verification = await prisma.verification.findUnique({
+      where: { phone },
+    });
+
+    if (!verification || verification.code !== OTP) {
+      return {
+        error: "Invalid verification code",
+      };
+    }
 
     // TODO: check if username is already used
     const existingUsername = await prisma.user.findFirst({
@@ -33,6 +45,16 @@ export async function signup(credentials: SignUpValues): Promise<ActionResult> {
         error: "Username already taken",
       };
     }
+
+    const existingPhoneNumber = await prisma.user.findUnique({
+      where: {
+        phone: phone,
+      },
+    });
+
+    if (existingPhoneNumber) {
+      return { error: "Phone number already taken" };
+    }
     const existingEmail = await prisma.user.findFirst({
       where: {
         email: {
@@ -43,9 +65,7 @@ export async function signup(credentials: SignUpValues): Promise<ActionResult> {
     });
 
     if (existingEmail) {
-      return {
-        error: "Email already taken",
-      };
+      return { error: "Email already taken" };
     }
     //A database category refers to a sequence of read/write operations that are guaranteed to either succeed or fail as a whole.
     await prisma.$transaction(async (tx) => {
@@ -57,7 +77,11 @@ export async function signup(credentials: SignUpValues): Promise<ActionResult> {
           displayName: username,
           email,
           passwordHash,
+          phone,
         },
+      });
+      await tx.verification.delete({
+        where: { phone },
       });
     });
 

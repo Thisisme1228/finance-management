@@ -2,12 +2,16 @@ import { z } from "zod";
 
 const requiredString = z.string().trim().min(1, "Required");
 
+export const phoneRegex = /^1[3-9]\d{9}$/;
+
 export const signUpSchema = z.object({
   email: requiredString.email("Invalid email address"),
   username: requiredString.regex(
     /^[a-zA-Z0-9_-]+$/,
     "Only letters, numbers, - and _ allowed"
   ),
+  phone: requiredString.regex(phoneRegex, "Invalid phone number"),
+  OTP: requiredString.min(6, "Must be 6 characters"),
   password: requiredString.min(8, "Must be at least 8 characters"),
 });
 
@@ -19,6 +23,13 @@ export const loginSchema = z.object({
 });
 
 export type LoginValues = z.infer<typeof loginSchema>;
+
+export const textMessageLoginSchema = z.object({
+  phone: requiredString.regex(phoneRegex, "Invalid phone number"),
+  OTP: requiredString.min(6, "Must be 6 characters"),
+});
+
+export type TextMessageLoginValues = z.infer<typeof textMessageLoginSchema>;
 
 export const AccountSchema = z.object({
   name: requiredString.max(20, "Must be 20 characters or less"),
